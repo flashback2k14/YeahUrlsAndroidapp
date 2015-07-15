@@ -37,9 +37,9 @@ public class MainActivity extends AppCompatActivity implements ICommunication {
     private FloatingActionButton fabAdd;
     private TextView tvHeaderEmail;
 
-    private Fragment loginFragment;
-    private Fragment overviewFragment;
-    private Fragment notesFragment;
+    private LoginFragment loginFragment;
+    private OverviewFragment overviewFragment;
+    private NotesFragment notesFragment;
 
     private UserCreds fireBaseUserCreds;
     private User fireBaseUser;
@@ -94,7 +94,8 @@ public class MainActivity extends AppCompatActivity implements ICommunication {
 
                     case R.id.navigation_item_note:
                         drawerLayout.closeDrawers();
-                        showNotesFragment();
+                        //showNotesFragment();
+                        Utilities.buildSnackbar(MainActivity.this, "Not implemented, yet!");
                         break;
 
                     case R.id.navigation_item_logout:
