@@ -5,6 +5,7 @@
     <string name="drawer_close">Close Drawer</string>
 
     <string name="nav_login">Login</string>
+    <string name="nav_home">Home</string>
     <string name="nav_overview">Overview</string>
     <string name="nav_note">Notes</string>
     <string name="nav_logout">Logout</string>
@@ -12,4 +13,23 @@
     <string name="hint_email">E-Mail Address</string>
     <string name="hint_password">Password</string>
     <string name="hint_search">Search</string>
+    <string name="hint_title">Title</string>
+    <string name="hint_date_time">Date, Time</string>
+    <string name="hint_keywords">Keywords</string>
+    <string name="hint_notes">Notes</string>
+    <string name="hint_urls">URL</string>
+
+    <string name="btn_save">Save</string>
+    <string name="btn_cancel">Cancel</string>
+
+    <string name="home_1">
+        Welcome to Yeah! URLs Android.
+        \n\nHere you can show and remove your collected URLs and Notes.
+        \n\nTo collect URLs and Notes you need the Yeah! URLs Chrome Extension
+        \n\nOR
+        \n\nYou use the Share Menu on your Android Phone.
+    </string>
+
+    <string name="title_activity_add_note">Yeah! URLs - Add Note</string>
+    <string name="title_activity_add_url">Yeah! URLs - Add URL</string>
 </resources>

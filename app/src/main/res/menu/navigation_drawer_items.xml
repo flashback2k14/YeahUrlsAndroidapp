@@ -9,6 +9,12 @@
             android:id="@+id/navigation_item_login"
             android:icon="@drawable/ic_person_outline_black_48dp"
             android:title="@string/nav_login"/>
+
+        <item
+            android:id="@+id/navigation_item_home"
+            android:icon="@mipmap/ic_home_black_48dp"
+            android:title="@string/nav_home"/>
+
         <item
             android:id="@+id/navigation_item_overview"
             android:icon="@drawable/ic_list_black_48dp"

@@ -26,8 +26,8 @@
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
                     android:textAppearance="?android:attr/textAppearanceMedium"
-                    android:text="@string/hint_date_time"
-                    android:id="@+id/tvDateTime"
+                    android:text="@string/hint_title"
+                    android:id="@+id/tvTitle"
                     android:background="@color/primary"
                     android:textColor="@color/window_foreground"
                     android:textSize="30sp"
@@ -43,9 +43,8 @@
                     android:paddingBottom="0dp"
                     android:layout_marginTop="20dp"
                     android:textAppearance="?android:attr/textAppearanceMedium"
-                    android:text="@string/hint_urls"
-                    android:autoLink="web"
-                    android:id="@+id/tvUrl"
+                    android:text="@string/hint_notes"
+                    android:id="@+id/tvNote"
                     android:textColor="@color/primary_text"
                     android:textSize="20sp"/>
 
@@ -59,19 +58,18 @@
                     android:layout_marginTop="10dp"
                     android:textAppearance="?android:attr/textAppearanceMedium"
                     android:text="@string/hint_keywords"
-                    android:id="@+id/tvKeywords"
+                    android:id="@+id/tvKeywordsNote"
                     android:textColor="@color/primary_text"
                     android:textSize="20sp"
                     android:textStyle="bold" />
-
             </LinearLayout>
         </FrameLayout>
 
         <android.support.design.widget.FloatingActionButton
-            android:id="@+id/fabRemove"
+            android:id="@+id/fabRemoveNote"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/yeahurls_fab_margin_top"
+            android:layout_marginTop="@dimen/yeahurls_fab_note_margin_top"
             android:layout_marginRight="@dimen/yeahurls_fab_margin_right"
             android:layout_marginEnd="@dimen/yeahurls_fab_margin_right"
             android:src="@drawable/ic_clear_white_48dp"

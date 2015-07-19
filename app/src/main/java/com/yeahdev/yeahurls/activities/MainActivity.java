@@ -1,6 +1,7 @@
-package com.yeahdev.yeahurls;
+package com.yeahdev.yeahurls.activities;
 
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AlertDialog;
@@ -9,7 +10,6 @@ import android.view.View;
 import android.view.MenuItem;
 import android.content.res.Configuration;
 import android.content.SharedPreferences;
-import android.support.v4.app.Fragment;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.widget.*;
@@ -21,6 +21,8 @@ import android.support.design.widget.FloatingActionButton;
 import android.widget.TextView;
 
 import com.firebase.client.Firebase;
+import com.yeahdev.yeahurls.R;
+import com.yeahdev.yeahurls.fragments.HomeFragment;
 import com.yeahdev.yeahurls.fragments.LoginFragment;
 import com.yeahdev.yeahurls.fragments.NotesFragment;
 import com.yeahdev.yeahurls.fragments.OverviewFragment;
@@ -38,6 +40,7 @@ public class MainActivity extends AppCompatActivity implements ICommunication {
     private TextView tvHeaderEmail;
 
     private LoginFragment loginFragment;
+    private HomeFragment homeFragment;
     private OverviewFragment overviewFragment;
     private NotesFragment notesFragment;
 
@@ -47,6 +50,7 @@ public class MainActivity extends AppCompatActivity implements ICommunication {
     private SharedPreferences preferences;
 
     private static final String LOGIN_FRAGMENT = "LOGIN_FRAGMENT";
+    private static final String HOME_FRAGMENT = "HOME_FRAGMENT";
     private static final String OVERVIEW_FRAGMENT = "OVERVIEW_FRAGMENT";
     private static final String NOTES_FRAGMENT = "NOTES_FRAGMENT";
 
@@ -87,6 +91,11 @@ public class MainActivity extends AppCompatActivity implements ICommunication {
                         showLoginFragment();
                         break;
 
+                    case R.id.navigation_item_home:
+                        drawerLayout.closeDrawers();
+                        showHomeFragment();
+                        break;
+
                     case R.id.navigation_item_overview:
                         drawerLayout.closeDrawers();
                         showOverviewFragment();
@@ -94,8 +103,7 @@ public class MainActivity extends AppCompatActivity implements ICommunication {
 
                     case R.id.navigation_item_note:
                         drawerLayout.closeDrawers();
-                        //showNotesFragment();
-                        Utilities.buildSnackbar(MainActivity.this, "Not implemented, yet!");
+                        showNotesFragment();
                         break;
 
                     case R.id.navigation_item_logout:
@@ -126,13 +134,14 @@ public class MainActivity extends AppCompatActivity implements ICommunication {
         fabAdd.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Utilities.buildSnackbar(MainActivity.this, "From FAB");
+                startActivity(new Intent(MainActivity.this, AddNoteActivity.class));
             }
         });
     }
 
     private void setupFragments() {
         this.loginFragment = LoginFragment.newInstance();
+        this.homeFragment = HomeFragment.newInstance();
         this.overviewFragment = OverviewFragment.newInstance();
         this.notesFragment = NotesFragment.newInstance();
     }
@@ -143,6 +152,15 @@ public class MainActivity extends AppCompatActivity implements ICommunication {
         if (loginFragment == null) {
             getSupportFragmentManager().beginTransaction().replace(R.id.contentFrame, this.loginFragment, LOGIN_FRAGMENT).commit();
             this.fabAdd.setVisibility(View.GONE);
+        }
+    }
+
+    private void showHomeFragment() {
+        HomeFragment homeFragment = (HomeFragment) getSupportFragmentManager().findFragmentByTag(HOME_FRAGMENT);
+
+        if (homeFragment == null) {
+            getSupportFragmentManager().beginTransaction().replace(R.id.contentFrame, this.homeFragment, HOME_FRAGMENT).commit();
+            this.fabAdd.setVisibility(View.VISIBLE);
         }
     }
 
@@ -159,7 +177,6 @@ public class MainActivity extends AppCompatActivity implements ICommunication {
             getSupportFragmentManager().beginTransaction().replace(R.id.contentFrame, this.overviewFragment, OVERVIEW_FRAGMENT).commit();
 
             this.fabAdd.setVisibility(View.GONE);
-            //this.fabAdd.setVisibility(View.VISIBLE); //temporary gone
         }
     }
 
@@ -167,7 +184,14 @@ public class MainActivity extends AppCompatActivity implements ICommunication {
         NotesFragment notesFragment = (NotesFragment) getSupportFragmentManager().findFragmentByTag(NOTES_FRAGMENT);
 
         if (notesFragment == null) {
+            Bundle userData = new Bundle();
+            if (this.fireBaseUserCreds != null) {
+                userData.putString("userId", this.fireBaseUserCreds.getUserId());
+                userData.putLong("expireDate", this.fireBaseUserCreds.getExpireDate());
+            }
+            this.notesFragment.setArguments(userData);
             getSupportFragmentManager().beginTransaction().replace(R.id.contentFrame, this.notesFragment, NOTES_FRAGMENT).commit();
+
             this.fabAdd.setVisibility(View.GONE);
         }
     }
@@ -193,7 +217,10 @@ public class MainActivity extends AppCompatActivity implements ICommunication {
                         OverviewFragment overviewFragment = (OverviewFragment) getSupportFragmentManager().findFragmentByTag(OVERVIEW_FRAGMENT);
                         overviewFragment.removeAllItemsFromRv();
 
-                        showLoginFragment();
+                        NotesFragment notesFragment = (NotesFragment) getSupportFragmentManager().findFragmentByTag(NOTES_FRAGMENT);
+                        notesFragment.removeAllItemsFromRv();
+
+                        showHomeFragment();
                     }
                 })
                 .setNegativeButton("No",new DialogInterface.OnClickListener() {
@@ -215,7 +242,7 @@ public class MainActivity extends AppCompatActivity implements ICommunication {
             if (UserHelper.userStillLoggedIn(fireBaseUserCreds.getExpireDate())) {
                 fireBaseUser = SharedPreferencesHelper.getUserFromPreferences(this.preferences);
                 tvHeaderEmail.setText(fireBaseUser.getEmailAddress());
-                showOverviewFragment();
+                showHomeFragment();
             } else {
                 showLoginFragment();
             }
@@ -277,38 +304,3 @@ public class MainActivity extends AppCompatActivity implements ICommunication {
         return super.onOptionsItemSelected(item);
     }
 }
-
-/*
-private BubblesManager bubblesManager;
-
-setupBubbles();
-
-private void setupBubbles() {
-    bubblesManager = new BubblesManager.Builder(this)
-            .setTrashLayout(R.layout.bubble_trash_layout)
-            .build();
-    bubblesManager.initialize();
-}
-
-private void addNewBubble() {
-    BubbleLayout bubbleView = (BubbleLayout) LayoutInflater.from(MainActivity.this).inflate(R.layout.bubble_layout, null);
-    bubbleView.setOnClickListener(new View.OnClickListener() {
-        @Override
-        public void onClick(View view) {
-            // http://www.android-ios-tutorials.com/android/custom-android-dialog-alertdialog-example/
-        }
-    });
-    bubbleView.setOnBubbleRemoveListener(new BubbleLayout.OnBubbleRemoveListener() {
-        @Override
-        public void onBubbleRemoved(BubbleLayout bubble) {
-        }
-    });
-    bubblesManager.addBubble(bubbleView, 60, 20);
-}
-
-@Override
-protected void onDestroy() {
-    super.onDestroy();
-    bubblesManager.recycle();
-}
-*/

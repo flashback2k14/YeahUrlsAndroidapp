@@ -26,7 +26,6 @@ public class LoginFragment extends Fragment {
     private EditText etPassword;
 
     public LoginFragment() {}
-
     public static LoginFragment newInstance() { return new LoginFragment(); }
 
     @Override

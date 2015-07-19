@@ -1,0 +1,129 @@
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:orientation="vertical"
+    tools:context="com.yeahdev.yeahurls.activities.AddNoteActivity">
+
+    <LinearLayout
+        android:id="@+id/llTitleNote"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <EditText
+            android:id="@+id/etTitle"
+            android:layout_weight="0.8"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:inputType="text"
+            android:layout_margin="10dp"
+            android:hint="@string/hint_title"
+            android:textColor="@color/window_foreground"
+            android:theme="@style/EditTextStyle"/>
+
+        <ImageButton
+            android:layout_weight="0.1"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_margin="3dp"
+            android:id="@+id/btnClearTitle"
+            android:src="@drawable/ic_clear_white_48dp"
+            android:background="@null"
+            android:contentDescription="@string/hint_title" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/llKeywordsNote"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <EditText
+            android:id="@+id/etKeywords"
+            android:layout_weight="0.8"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:inputType="text"
+            android:layout_margin="10dp"
+            android:hint="@string/hint_keywords"
+            android:textColor="@color/window_foreground"
+            android:theme="@style/EditTextStyle"/>
+
+        <ImageButton
+            android:layout_weight="0.1"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_margin="3dp"
+            android:id="@+id/btnClearKeywords"
+            android:src="@drawable/ic_clear_white_48dp"
+            android:background="@null"
+            android:contentDescription="@string/hint_keywords"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/llNotes"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <EditText
+            android:id="@+id/etNotes"
+            android:layout_weight="0.8"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:gravity="left|top"
+            android:inputType="textMultiLine"
+            android:maxLines="8"
+            android:scrollbars="vertical"
+            android:layout_margin="10dp"
+            android:hint="@string/hint_notes"
+            android:textColor="@color/window_foreground"
+            android:theme="@style/EditTextStyle"/>
+
+        <ImageButton
+            android:layout_weight="0.1"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_margin="3dp"
+            android:id="@+id/btnClearNote"
+            android:src="@drawable/ic_clear_white_48dp"
+            android:background="@null"
+            android:contentDescription="@string/hint_notes" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/llButtonNotes"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <Button
+            android:layout_weight="0.5"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:id="@+id/btnCancelNote"
+            android:text="@string/btn_cancel"
+            android:background="@drawable/roundcorner_red"/>
+
+        <Button
+            android:layout_weight="0.5"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="15dp"
+            android:layout_marginRight="10dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="0dp"
+            android:paddingRight="0dp"
+            android:id="@+id/btnSaveNote"
+            android:text="@string/btn_save"
+            android:background="@drawable/roundcorner"/>
+    </LinearLayout>
+</LinearLayout>

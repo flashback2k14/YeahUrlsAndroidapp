@@ -7,7 +7,6 @@ import android.net.Uri;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
-import android.text.method.LinkMovementMethod;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,62 +15,59 @@ import android.widget.TextView;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
 import com.yeahdev.yeahurls.R;
-import com.yeahdev.yeahurls.fragments.OverviewFragment;
 import com.yeahdev.yeahurls.interfaces.ICommunicationAdapter;
+import com.yeahdev.yeahurls.model.NoteItem;
 import com.yeahdev.yeahurls.model.UrlItem;
 import com.yeahdev.yeahurls.model.UserCreds;
-import com.yeahdev.yeahurls.util.SharedPreferencesHelper;
 import com.yeahdev.yeahurls.util.Utilities;
 
 import java.util.ArrayList;
 
+public class OverviewNotesRvAdapter extends RecyclerView.Adapter<OverviewNotesRvAdapter.OverviewNotesViewHolder> {
 
-public class OverviewRvAdapter extends RecyclerView.Adapter<OverviewRvAdapter.OverviewViewHolder> {
+    public static class OverviewNotesViewHolder extends RecyclerView.ViewHolder {
+        private TextView tvTitle;
+        private TextView tvNote;
+        private TextView tvKeywordsNote;
+        private FloatingActionButton fabRemoveNote;
 
-    public static class OverviewViewHolder extends RecyclerView.ViewHolder {
-        private TextView tvDateTime;
-        private TextView tvUrl;
-        private TextView tvKeywords;
-        private FloatingActionButton fabRemove;
-
-        public OverviewViewHolder(View itemView) {
+        public OverviewNotesViewHolder(View itemView) {
             super(itemView);
-            this.tvDateTime = (TextView) itemView.findViewById(R.id.tvDateTime);
-            this.tvUrl = (TextView) itemView.findViewById(R.id.tvUrl);
-            this.tvUrl.setMovementMethod(LinkMovementMethod.getInstance());
-            this.tvKeywords = (TextView) itemView.findViewById(R.id.tvKeywords);
-            this.fabRemove = (FloatingActionButton) itemView.findViewById(R.id.fabRemove);
+            this.tvTitle = (TextView) itemView.findViewById(R.id.tvTitle);
+            this.tvNote = (TextView) itemView.findViewById(R.id.tvNote);
+            this.tvKeywordsNote = (TextView) itemView.findViewById(R.id.tvKeywordsNote);
+            this.fabRemoveNote = (FloatingActionButton) itemView.findViewById(R.id.fabRemoveNote);
         }
     }
 
     private Activity activity;
     private UserCreds userCreds;
-    private ArrayList<UrlItem> urlItemCollection;
+    private ArrayList<NoteItem> noteItemCollection;
     private ICommunicationAdapter iCommAdapter;
 
-    public OverviewRvAdapter(Activity activity, UserCreds userCreds, ICommunicationAdapter iCommAdapter) {
+    public OverviewNotesRvAdapter(Activity activity, UserCreds userCreds, ICommunicationAdapter iCommAdapter) {
         this.activity = activity;
         this.userCreds = userCreds;
-        this.urlItemCollection = new ArrayList<>();
+        this.noteItemCollection = new ArrayList<>();
         this.iCommAdapter = iCommAdapter;
     }
 
     @Override
-    public OverviewViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public OverviewNotesViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View layoutView = LayoutInflater
                 .from(parent.getContext())
-                .inflate(R.layout.overview_item, parent, false);
-        return new OverviewViewHolder(layoutView);
+                .inflate(R.layout.overview_note_item, parent, false);
+        return new OverviewNotesViewHolder(layoutView);
     }
 
     @Override
-    public void onBindViewHolder(final OverviewViewHolder holder, final int position) {
-        final UrlItem urlItem = urlItemCollection.get(position);
-        holder.tvDateTime.setText("Date: " + urlItem.getDate() + "\nTime: " + urlItem.getTime());
-        holder.tvUrl.setText(urlItem.getValue());
-        holder.tvKeywords.setText(urlItem.getKeywords());
+    public void onBindViewHolder(final OverviewNotesViewHolder holder, final int position) {
+        final NoteItem noteItem = noteItemCollection.get(position);
+        holder.tvTitle.setText(noteItem.getTitle());
+        holder.tvNote.setText(noteItem.getValue());
+        holder.tvKeywordsNote.setText(noteItem.getKeywords());
 
-        holder.fabRemove.setOnClickListener(new View.OnClickListener() {
+        holder.fabRemoveNote.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(activity);
@@ -81,12 +77,11 @@ public class OverviewRvAdapter extends RecyclerView.Adapter<OverviewRvAdapter.Ov
                         .setCancelable(false)
                         .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int idid) {
-
-                                int id = urlItem.getId() - 1;
+                                int id = noteItem.getId() - 1;
 
                                 try {
                                     Firebase ref = new Firebase("https://yeah-url-extension.firebaseio.com/" + userCreds.getUserId()
-                                            + "/urlcollector/" + urlItem.getObjId() + "/" + id);
+                                            + "/notescollector/" + noteItem.getObjId() + "/" + id);
 
                                     ref.removeValue(new Firebase.CompletionListener() {
                                         @Override
@@ -102,7 +97,6 @@ public class OverviewRvAdapter extends RecyclerView.Adapter<OverviewRvAdapter.Ov
                                 } catch (Exception e) {
                                     Utilities.buildSnackbar(activity, "authWithPassword failed! Error: " + e.getMessage());
                                 }
-
                             }
                         })
                         .setNegativeButton("No",new DialogInterface.OnClickListener() {
@@ -115,18 +109,11 @@ public class OverviewRvAdapter extends RecyclerView.Adapter<OverviewRvAdapter.Ov
                 alertDialog.show();
             }
         });
-
-        holder.tvUrl.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                activity.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(holder.tvUrl.getText().toString())));
-            }
-        });
     }
 
-    public void addItem(int position, UrlItem urlItem) {
+    public void addItem(int position, NoteItem noteItem) {
         try {
-            urlItemCollection.add(position, urlItem);
+            noteItemCollection.add(position, noteItem);
             notifyItemInserted(position);
             notifyDataSetChanged();
         } catch (Exception e) {
@@ -136,7 +123,7 @@ public class OverviewRvAdapter extends RecyclerView.Adapter<OverviewRvAdapter.Ov
 
     public void removeItem(int position) {
         try {
-            urlItemCollection.remove(position);
+            noteItemCollection.remove(position);
             notifyItemRemoved(position);
             iCommAdapter.getRemovedItemPosition(position);
             notifyDataSetChanged();
@@ -153,43 +140,43 @@ public class OverviewRvAdapter extends RecyclerView.Adapter<OverviewRvAdapter.Ov
         }
     }
 
-    public void animateTo(ArrayList<UrlItem> models) {
+    public void animateTo(ArrayList<NoteItem> models) {
         applyAndAnimateRemovals(models);
         applyAndAnimateAdditions(models);
     }
 
-    private void applyAndAnimateRemovals(ArrayList<UrlItem> newModels) {
+    private void applyAndAnimateRemovals(ArrayList<NoteItem> newModels) {
         for (int i = getItemCount() - 1; i >= 0; i--) {
-            final UrlItem model = urlItemCollection.get(i);
+            final NoteItem model = noteItemCollection.get(i);
             if (!newModels.contains(model)) {
                 removeFilterItem(i);
             }
         }
     }
 
-    private void applyAndAnimateAdditions(ArrayList<UrlItem> newModels) {
+    private void applyAndAnimateAdditions(ArrayList<NoteItem> newModels) {
         for (int i = 0, count = newModels.size(); i < count; i++) {
-            final UrlItem model = newModels.get(i);
-            if (!urlItemCollection.contains(model)) {
+            final NoteItem model = newModels.get(i);
+            if (!noteItemCollection.contains(model)) {
                 addFilterItem(i, model);
             }
         }
     }
 
-    public UrlItem removeFilterItem(int position) {
-        final UrlItem model = urlItemCollection.remove(position);
+    public NoteItem removeFilterItem(int position) {
+        final NoteItem model = noteItemCollection.remove(position);
         notifyItemRemoved(position);
         return model;
     }
 
-    public void addFilterItem(int position, UrlItem model) {
-        urlItemCollection.add(position, model);
+    public void addFilterItem(int position, NoteItem model) {
+        noteItemCollection.add(position, model);
         notifyItemInserted(position);
     }
 
     @Override
     public int getItemCount() {
-        return urlItemCollection.size();
+        return noteItemCollection.size();
     }
 
     @Override

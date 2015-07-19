@@ -6,4 +6,5 @@
     <dimen name="yeahurls_fab_margin_right">0dp</dimen>
     <dimen name="yeahurls_fab_margin_bottom">0dp</dimen>
     <dimen name="yeahurls_fab_margin_top">48dp</dimen>
+    <dimen name="yeahurls_fab_note_margin_top">28dp</dimen>
 </resources>

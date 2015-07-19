@@ -51,11 +51,13 @@ public class OverviewFragment extends Fragment implements ICommunicationAdapter 
         View v = inflater.inflate(R.layout.fragment_overview, container, false);
         setHasOptionsMenu(true);
 
-        progressDialog = ProgressDialog.show(getActivity(), "Loading", "Get Data from Firebase...", false);
+        progressDialog = ProgressDialog.show(getActivity(), "Loading", "Get Url Collection from Firebase...", false, true);
         itemArrayList.clear();
 
         String userId = this.getArguments().getString("userId", "");
         long expireDate = this.getArguments().getLong("expireDate", 0);
+        long currentTimestamp = System.currentTimeMillis() / 1000;
+
         UserCreds userCreds = UserHelper.createUserCredsObject(userId, expireDate);
 
         rvOverview = (RecyclerView) v.findViewById(R.id.rvOverview);
@@ -65,14 +67,14 @@ public class OverviewFragment extends Fragment implements ICommunicationAdapter 
         overviewRvAdapter = new OverviewRvAdapter(getActivity(), userCreds, this);
         rvOverview.setAdapter(overviewRvAdapter);
 
-        if (expireDate > 0) {
-            loadDataFromFirebase(userCreds.getUserId());
+        if ((expireDate > 0) && (expireDate != currentTimestamp)) {
+            loadUrlDataFromFirebase(userCreds.getUserId());
         }
 
         return v;
     }
 
-    private void loadDataFromFirebase(String userId) {
+    private void loadUrlDataFromFirebase(String userId) {
         try {
             Firebase ref = new Firebase("https://yeah-url-extension.firebaseio.com/" + userId + "/urlcollector");
             ref.addChildEventListener(new ChildEventListener() {
@@ -140,7 +142,12 @@ public class OverviewFragment extends Fragment implements ICommunicationAdapter 
         urlItem.setTime(String.valueOf(map.get("time")));
         urlItem.setId(Integer.parseInt(String.valueOf(map.get("id"))));
         urlItem.setKeywords(String.valueOf(map.get("keywords")));
-        urlItem.setObjId(objId);
+
+        if(map.get("objId") != null) {
+            urlItem.setObjId(String.valueOf(map.get("objId")));
+        } else {
+            urlItem.setObjId(objId);
+        }
 
         return urlItem;
     }

@@ -1,23 +1,20 @@
 package com.yeahdev.yeahurls.model;
 
-
-public class UrlItem {
+public class NoteItem {
     private int id;
+    private String title;
     private String value;
     private String keywords;
-    private String date;
-    private String time;
-    private String timestamp;
+    private long timestamp;
     private String objId;
 
-    public UrlItem() {}
+    public NoteItem() { }
 
-    public UrlItem(int id, String value, String keywords, String date, String time, String timestamp, String objId) {
+    public NoteItem(int id, String title, String value, String keywords, long timestamp, String objId) {
         this.id = id;
+        this.title = title;
         this.value = value;
         this.keywords = keywords;
-        this.date = date;
-        this.time = time;
         this.timestamp = timestamp;
         this.objId = objId;
     }
@@ -28,6 +25,14 @@ public class UrlItem {
 
     public void setId(int id) {
         this.id = id;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
     }
 
     public String getValue() {
@@ -46,27 +51,11 @@ public class UrlItem {
         this.keywords = keywords;
     }
 
-    public String getDate() {
-        return date;
-    }
-
-    public void setDate(String date) {
-        this.date = date;
-    }
-
-    public String getTime() {
-        return time;
-    }
-
-    public void setTime(String time) {
-        this.time = time;
-    }
-
-    public String getTimestamp() {
+    public long getTimestamp() {
         return timestamp;
     }
 
-    public void setTimestamp(String timestamp) {
+    public void setTimestamp(long timestamp) {
         this.timestamp = timestamp;
     }
 
