@@ -29,7 +29,7 @@
         <!-- Drawer Style -->
         <item name="drawerArrowStyle">@style/AppTheme.MyDrawerArrowStyle</item>
         <!-- Definition Text Hint -->
-        <item name="android:textColorHint">@color/secondary_text</item>
+        <item name="android:textColorHint">@color/window_foreground</item>
     </style>
 
     <!-- Definition Option Menu Style -->
@@ -48,10 +48,10 @@
 
     <!-- Definition Edittext Style -->
     <style name="EditTextStyle" parent="Widget.AppCompat.EditText">
-        <item name="colorControlNormal">@color/secondary_text</item>
+        <item name="colorControlNormal">@color/window_foreground</item>
         <item name="colorControlActivated">@color/accent</item>
         <item name="colorControlHighlight">@color/accent</item>
-        <item name="android:textColor">@color/secondary_text</item>
+        <item name="android:textColor">@color/window_foreground</item>
     </style>
 
     <!-- Definition Dialog Style -->

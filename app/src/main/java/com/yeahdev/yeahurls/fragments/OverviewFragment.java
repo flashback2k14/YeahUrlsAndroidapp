@@ -24,6 +24,7 @@ import com.firebase.client.FirebaseError;
 import com.yeahdev.yeahurls.R;
 import com.yeahdev.yeahurls.adapter.OverviewRvAdapter;
 import com.yeahdev.yeahurls.interfaces.ICommunicationAdapter;
+import com.yeahdev.yeahurls.model.NoteItem;
 import com.yeahdev.yeahurls.model.UrlItem;
 import com.yeahdev.yeahurls.model.UserCreds;
 import com.yeahdev.yeahurls.util.UserHelper;
@@ -74,6 +75,10 @@ public class OverviewFragment extends Fragment implements ICommunicationAdapter 
         return v;
     }
 
+    /**
+     * Method to Load Data from Firebase
+     * @param userId User Id
+     */
     private void loadUrlDataFromFirebase(String userId) {
         try {
             Firebase ref = new Firebase("https://yeah-url-extension.firebaseio.com/" + userId + "/urlcollector");
@@ -81,7 +86,6 @@ public class OverviewFragment extends Fragment implements ICommunicationAdapter 
                 @Override
                 public void onChildAdded(DataSnapshot snapshot, String s) {
                     String objId = snapshot.getKey();
-
                     for (DataSnapshot child : snapshot.getChildren()) {
                         try {
                             UrlItem urlItem = createUrlItem(objId, child);
@@ -91,30 +95,24 @@ public class OverviewFragment extends Fragment implements ICommunicationAdapter 
                             Utilities.buildSnackbar(getActivity(), "onChildAdded failed! Error: " + e.getMessage());
                         }
                     }
-
                     progressDialog.dismiss();
                 }
 
                 @Override
-                public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-
+                public void onChildChanged(DataSnapshot snapshot, String s) {
+                    String objId = snapshot.getKey();
+                    for (DataSnapshot child : snapshot.getChildren()) {
+                        try {
+                            UrlItem urlItem = createUrlItem(objId, child);
+                            overviewRvAdapter.searchAndReplaceItem(urlItem);
+                        } catch (Exception e) {
+                            Utilities.buildSnackbar(getActivity(), "onChildChanged failed! Error: " + e.getMessage());
+                        }
+                    }
                 }
 
                 @Override
                 public void onChildRemoved(DataSnapshot snapshot) {
-                    /**
-                     * Too slow!!!
-                     */
-                        /*String objId = snapshot.getKey();
-
-                        for (DataSnapshot child : snapshot.getChildren()) {
-                            try {
-                                UrlItem urlItem = createUrlItem(objId, child);
-                                Utilities.buildSnackbar(getActivity(), "ID: " + urlItem.getId() + ", Keywords: " + urlItem.getKeywords());
-                            } catch (Exception e) {
-                                Utilities.buildSnackbar(getActivity(), "onChildRemoved failed! Error: " + e.getMessage());
-                            }
-                        }*/
                 }
 
                 @Override
@@ -132,6 +130,12 @@ public class OverviewFragment extends Fragment implements ICommunicationAdapter 
         }
     }
 
+    /**
+     * Helper Method to generated UrlItem from Firebase DataSnapshot child
+     * @param objId Object Id
+     * @param child DataSnapshot
+     * @return UrlItem
+     */
     private UrlItem createUrlItem(String objId, DataSnapshot child) {
         UrlItem urlItem = new UrlItem();
 
@@ -148,10 +152,12 @@ public class OverviewFragment extends Fragment implements ICommunicationAdapter 
         } else {
             urlItem.setObjId(objId);
         }
-
         return urlItem;
     }
 
+    /**
+     * Method to Remove all Adapter Elements
+     */
     public void removeAllItemsFromRv() {
         try {
             overviewRvAdapter.removeAllItems();
@@ -160,6 +166,12 @@ public class OverviewFragment extends Fragment implements ICommunicationAdapter 
         }
     }
 
+    /**
+     * Method to Filter Adapter Elements that matching the Query
+     * @param urlCollection old Elements List
+     * @param query Search Query
+     * @return new Elements List
+     */
     private ArrayList<UrlItem> filter(ArrayList<UrlItem> urlCollection, String query) {
         query = query.toLowerCase();
 
@@ -181,6 +193,23 @@ public class OverviewFragment extends Fragment implements ICommunicationAdapter 
         }
     }
 
+    /**
+     * Method to Add Element to Temp Element List
+     * @param position Position in ArrayList
+     * @param item Item Object
+     */
+    @Override
+    public void getAddedItemPosition(int position, Object item) {
+        UrlItem urlItem = (UrlItem) item;
+        if (!itemArrayList.contains(urlItem)) {
+            itemArrayList.add(position, urlItem);
+        }
+    }
+
+    /**
+     * Method to Remove Element from Temp Element List
+     * @param position Position in ArrayList
+     */
     @Override
     public void getRemovedItemPosition(int position) {
         itemArrayList.remove(position);

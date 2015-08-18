@@ -12,7 +12,7 @@
 
     <LinearLayout
         android:id="@+id/llKeywordsUrl"
-        android:layout_width="match_parent"
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal">
 
@@ -21,7 +21,7 @@
             android:layout_weight="0.8"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:inputType="text"
+            android:inputType="text|textUri"
             android:layout_margin="10dp"
             android:hint="@string/hint_keywords"
             android:textColor="@color/window_foreground"
@@ -31,16 +31,17 @@
             android:layout_weight="0.1"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_margin="3dp"
             android:id="@+id/btnClearKeywordsUrl"
             android:src="@drawable/ic_clear_white_48dp"
             android:background="@null"
-            android:contentDescription="@string/hint_keywords"/>
+            android:contentDescription="@string/hint_keywords"
+            android:layout_margin="3dp"
+            android:scaleType="centerInside" />
     </LinearLayout>
 
     <LinearLayout
         android:id="@+id/llUrl"
-        android:layout_width="match_parent"
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal">
 
@@ -58,7 +59,7 @@
 
     <LinearLayout
         android:id="@+id/llButtonUrl"
-        android:layout_width="match_parent"
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal">
 
@@ -67,7 +68,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_margin="10dp"
-            android:id="@+id/btnCancelNote"
+            android:id="@+id/btnCancel"
             android:text="@string/btn_cancel"
             android:background="@drawable/roundcorner_red"/>
 
@@ -80,8 +81,23 @@
             android:layout_marginTop="10dp"
             android:layout_marginBottom="0dp"
             android:paddingRight="0dp"
-            android:id="@+id/btnSaveNote"
+            android:id="@+id/btnSave"
             android:text="@string/btn_save"
-            android:background="@drawable/roundcorner"/>
+            android:background="@drawable/roundcorner"
+            android:visibility="visible"/>
+
+        <Button
+            android:layout_weight="0.5"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="15dp"
+            android:layout_marginRight="10dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="0dp"
+            android:paddingRight="0dp"
+            android:id="@+id/btnUpdate"
+            android:text="@string/btn_update"
+            android:background="@drawable/roundcorner"
+            android:visibility="gone"/>
     </LinearLayout>
 </LinearLayout>

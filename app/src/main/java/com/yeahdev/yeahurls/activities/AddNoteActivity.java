@@ -11,6 +11,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.Toast;
 
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
@@ -19,21 +20,26 @@ import com.yeahdev.yeahurls.R;
 import com.yeahdev.yeahurls.model.NoteItem;
 import com.yeahdev.yeahurls.model.UserCreds;
 import com.yeahdev.yeahurls.util.SharedPreferencesHelper;
+import com.yeahdev.yeahurls.util.UserHelper;
 
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
-
+import java.util.Map;
 
 public class AddNoteActivity extends AppCompatActivity implements View.OnClickListener {
     private Intent intent;
 
     private EditText etTitle, etKeywords, etNotes;
     private ImageButton btnClearTitle, btnClearKeywords, btnClearNotes;
-    private Button btnCancel, btnSave;
+    private Button btnCancel, btnSave, btnUpdate;
 
     private UserCreds userCreds;
+    private int id;
+    private String objId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,6 +68,7 @@ public class AddNoteActivity extends AppCompatActivity implements View.OnClickLi
 
         btnCancel = (Button) findViewById(R.id.btnCancelNote);
         btnSave = (Button) findViewById(R.id.btnSaveNote);
+        btnUpdate = (Button) findViewById(R.id.btnUpdateNote);
     }
 
     private void initButtonListener() {
@@ -70,32 +77,48 @@ public class AddNoteActivity extends AppCompatActivity implements View.OnClickLi
         btnClearNotes.setOnClickListener(this);
         btnCancel.setOnClickListener(this);
         btnSave.setOnClickListener(this);
+        btnUpdate.setOnClickListener(this);
     }
 
     private void getSharingData() {
-        String action = intent.getAction();
-        if (action == null) return;
-
-        if (action.equals(Intent.ACTION_VIEW)) {
-            Uri data = intent.getData();
-            if (data != null) {
-                try {
-                    URL url = new URL(data.getScheme(), data.getHost(), data.getPath());
-                    etNotes.setText(url.toString());
-                } catch (MalformedURLException e) {
-                    Log.d("Yeah!Urls", "AddNoteActivity: Error: " + e.getMessage());
+        if (intent != null) {
+            String action = intent.getAction();
+            if (action != null) {
+                if (action.equals(Intent.ACTION_VIEW)) {
+                    Uri data = intent.getData();
+                    if (data != null) {
+                        try {
+                            URL url = new URL(data.getScheme(), data.getHost(), data.getPath());
+                            etNotes.setText(url.toString());
+                        } catch (MalformedURLException e) {
+                            Log.d("Yeah!Urls", "AddNoteActivity: Error: " + e.getMessage());
+                        }
+                    } else {
+                        Log.d("Yeah!Urls", "AddNoteActivity: Error: No Data!");
+                    }
                 }
+                if (action.equals(Intent.ACTION_SEND)) {
+                    String sharedText = intent.getStringExtra(Intent.EXTRA_TEXT);
+                    if (sharedText != null) {
+                        etNotes.setText(sharedText);
+                    }else {
+                        Log.d("Yeah!Urls", "AddNoteActivity: Error: No sharedText!");
+                    }
+                }
+                btnUpdate.setVisibility(View.GONE);
+                btnSave.setVisibility(View.VISIBLE);
             } else {
-                Log.d("Yeah!Urls", "AddNoteActivity: Error: No Data!");
-            }
-        }
+                Bundle bundle = intent.getExtras();
+                if (bundle != null) {
+                    id = bundle.getInt("Id");
+                    objId = bundle.getString("ObjId");
+                    etTitle.setText(bundle.getString("Title"));
+                    etKeywords.setText(bundle.getString("Keywords"));
+                    etNotes.setText(bundle.getString("Note"));
 
-        if (action.equals(Intent.ACTION_SEND)) {
-            String sharedText = intent.getStringExtra(Intent.EXTRA_TEXT);
-            if (sharedText != null) {
-                etNotes.setText(sharedText);
-            }else {
-                Log.d("Yeah!Urls", "AddNoteActivity: Error: No sharedText!");
+                    btnSave.setVisibility(View.GONE);
+                    btnUpdate.setVisibility(View.VISIBLE);
+                }
             }
         }
     }
@@ -120,49 +143,85 @@ public class AddNoteActivity extends AppCompatActivity implements View.OnClickLi
                     AddNoteActivity.this.finish();
                 }
                 break;
+            case R.id.btnUpdateNote:
+                if (updateNote()) {
+                    AddNoteActivity.this.finish();
+                }
             default:
                 break;
         }
     }
 
     private boolean saveNote() {
-        long currentTimestamp = System.currentTimeMillis() / 1000;
-        long expireDate = userCreds.getExpireDate();
+        if (UserHelper.userStillLoggedIn(userCreds.getExpireDate())) {
+            try {
+                Firebase ref = new Firebase("https://yeah-url-extension.firebaseio.com/" + userCreds.getUserId() + "/notescollector");
+                Firebase noteRef = ref.push();
 
-        if ((expireDate == 0) && (expireDate == currentTimestamp)) {
-            return false;
-        }
+                List<NoteItem> noteItemList = new ArrayList<>();
+                NoteItem noteItem = new NoteItem();
+                noteItem.setId(1);
+                noteItem.setTimestamp(Math.round(new Date().getTime() / 1000.0));
+                noteItem.setTitle(etTitle.getText().toString());
+                noteItem.setKeywords(etKeywords.getText().toString());
+                noteItem.setValue(etNotes.getText().toString());
+                noteItem.setObjId(noteRef.getKey());
+                noteItemList.add(noteItem);
 
-        try {
-            Firebase ref = new Firebase("https://yeah-url-extension.firebaseio.com/" + userCreds.getUserId() + "/notescollector");
-            Firebase noteRef = ref.push();
-
-            List<NoteItem> noteItemList = new ArrayList<>();
-            NoteItem noteItem = new NoteItem();
-            noteItem.setId(1);
-            noteItem.setTimestamp(currentTimestamp);
-            noteItem.setTitle(etTitle.getText().toString());
-            noteItem.setKeywords(etKeywords.getText().toString());
-            noteItem.setValue(etNotes.getText().toString());
-            noteItem.setObjId(noteRef.getKey());
-            noteItemList.add(noteItem);
-
-            noteRef.setValue(noteItemList, new Firebase.CompletionListener() {
-                @Override
-                public void onComplete(FirebaseError firebaseError, Firebase firebase) {
-                    if (firebaseError != null) {
-                        Log.d("Yeah!Urls", "Data could not be saved. " + firebaseError.getMessage());
-                    } else {
-                        Log.d("Yeah!Urls", "Data saved successfully.");
+                noteRef.setValue(noteItemList, new Firebase.CompletionListener() {
+                    @Override
+                    public void onComplete(FirebaseError firebaseError, Firebase firebase) {
+                        if (firebaseError != null) {
+                            Log.d("Yeah!Urls", "Data could not be saved. " + firebaseError.getMessage());
+                            Toast.makeText(AddNoteActivity.this, "Note saving failed: " + firebaseError.getMessage(), Toast.LENGTH_LONG).show();
+                        } else {
+                            Log.d("Yeah!Urls", "Data saved successfully.");
+                            Toast.makeText(AddNoteActivity.this, "Note saved successfully!", Toast.LENGTH_LONG).show();
+                        }
                     }
-                }
-            });
-
-        } catch (Exception e) {
-            Log.d("Yeah!Urls", "addChildEventListener failed! Error: " + e.getMessage());
-            return false;
+                });
+            } catch (Exception e) {
+                Log.d("Yeah!Urls", "Add Note failed! Error: " + e.getMessage());
+                return false;
+            }
+        } else {
+            Toast.makeText(this, "User is not logged in!", Toast.LENGTH_LONG).show();
+            startActivity(new Intent(AddNoteActivity.this, MainActivity.class));
+            return true;
         }
+        return true;
+    }
 
+    private boolean updateNote() {
+        if (UserHelper.userStillLoggedIn(userCreds.getExpireDate())) {
+            try {
+                Firebase ref = new Firebase("https://yeah-url-extension.firebaseio.com/" + userCreds.getUserId() + "/notescollector/" + objId + "/" + id);
+
+                Map<String, Object> updateNote = new HashMap<>(3);
+                updateNote.put("title", etTitle.getText().toString());
+                updateNote.put("keywords", etKeywords.getText().toString());
+                updateNote.put("value", etNotes.getText().toString());
+
+                ref.updateChildren(updateNote, new Firebase.CompletionListener() {
+                    @Override
+                    public void onComplete(FirebaseError firebaseError, Firebase firebase) {
+                        if (firebaseError != null) {
+                            Log.d("Yeah!Urls", "Data could not be saved. " + firebaseError.getMessage());
+                            Toast.makeText(AddNoteActivity.this, "Note updating failed: " + firebaseError.getMessage(), Toast.LENGTH_LONG).show();
+                        } else {
+                            Log.d("Yeah!Urls", "Data saved successfully.");
+                            Toast.makeText(AddNoteActivity.this, "Note updated successfully!", Toast.LENGTH_LONG).show();
+                        }
+                    }
+                });
+            } catch (Exception e) {
+                Log.d("Yeah!Urls", "Update Note failed! Error: " + e.getMessage());
+                return false;
+            }
+        } else {
+            Toast.makeText(this, "User is not logged in!", Toast.LENGTH_LONG).show();
+            startActivity(new Intent(AddNoteActivity.this, MainActivity.class));
+        }
         return true;
     }
 }

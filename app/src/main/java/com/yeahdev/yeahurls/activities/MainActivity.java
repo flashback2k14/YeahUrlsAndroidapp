@@ -4,6 +4,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v4.view.ViewCompat;
 import android.support.v7.app.AlertDialog;
 import android.view.Menu;
 import android.view.View;
@@ -61,8 +62,8 @@ public class MainActivity extends AppCompatActivity implements ICommunication {
 
         Firebase.setAndroidContext(this);
 
-        setDrawerLayout();
-        setNavigationView();
+        setupDrawerLayout();
+        setupNavigationView();
         setupToolbar();
         setupFab();
 
@@ -73,13 +74,13 @@ public class MainActivity extends AppCompatActivity implements ICommunication {
     /**
      * Init Layout
      */
-    private void setDrawerLayout() {
+    private void setupDrawerLayout() {
         drawerLayout = (DrawerLayout) findViewById(R.id.drawerLayout);
         drawerToggle = new ActionBarDrawerToggle(MainActivity.this, drawerLayout, R.string.drawer_open, R.string.drawer_close);
         drawerLayout.setDrawerListener(drawerToggle);
     }
 
-    private void setNavigationView() {
+    private void setupNavigationView() {
         NavigationView navigationView = (NavigationView) findViewById(R.id.navigation);
         navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
@@ -122,11 +123,17 @@ public class MainActivity extends AppCompatActivity implements ICommunication {
 
     private void setupToolbar() {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
 
-        final ActionBar ab = getSupportActionBar();
-        ab.setHomeButtonEnabled(true);
-        ab.setDisplayHomeAsUpEnabled(true);
+        if (toolbar != null) {
+            setSupportActionBar(toolbar);
+            ViewCompat.setElevation(toolbar, 8);
+            ViewCompat.setTranslationZ(toolbar, 8);
+            ActionBar supportActionBar = getSupportActionBar();
+            if (supportActionBar != null) {
+                supportActionBar.setHomeButtonEnabled(true);
+                supportActionBar.setDisplayHomeAsUpEnabled(true);
+            }
+        }
     }
 
     private void setupFab() {
@@ -168,14 +175,18 @@ public class MainActivity extends AppCompatActivity implements ICommunication {
         OverviewFragment overviewFragment = (OverviewFragment) getSupportFragmentManager().findFragmentByTag(OVERVIEW_FRAGMENT);
 
         if (overviewFragment == null) {
-            Bundle userData = new Bundle();
-            if (this.fireBaseUserCreds != null) {
-                userData.putString("userId", this.fireBaseUserCreds.getUserId());
-                userData.putLong("expireDate", this.fireBaseUserCreds.getExpireDate());
+            if (this.fireBaseUserCreds != null && UserHelper.userStillLoggedIn(fireBaseUserCreds.getExpireDate())) {
+                Bundle userData = new Bundle();
+                if (this.fireBaseUserCreds != null) {
+                    userData.putString("userId", this.fireBaseUserCreds.getUserId());
+                    userData.putLong("expireDate", this.fireBaseUserCreds.getExpireDate());
+                }
+                this.overviewFragment.setArguments(userData);
+                getSupportFragmentManager().beginTransaction().replace(R.id.contentFrame, this.overviewFragment, OVERVIEW_FRAGMENT).commit();
+            } else {
+                Utilities.buildSnackbar(this, "User is not logged in!");
+                showLoginFragment();
             }
-            this.overviewFragment.setArguments(userData);
-            getSupportFragmentManager().beginTransaction().replace(R.id.contentFrame, this.overviewFragment, OVERVIEW_FRAGMENT).commit();
-
             this.fabAdd.setVisibility(View.GONE);
         }
     }
@@ -184,14 +195,18 @@ public class MainActivity extends AppCompatActivity implements ICommunication {
         NotesFragment notesFragment = (NotesFragment) getSupportFragmentManager().findFragmentByTag(NOTES_FRAGMENT);
 
         if (notesFragment == null) {
-            Bundle userData = new Bundle();
-            if (this.fireBaseUserCreds != null) {
-                userData.putString("userId", this.fireBaseUserCreds.getUserId());
-                userData.putLong("expireDate", this.fireBaseUserCreds.getExpireDate());
+            if (this.fireBaseUserCreds != null && UserHelper.userStillLoggedIn(fireBaseUserCreds.getExpireDate())) {
+                Bundle userData = new Bundle();
+                if (this.fireBaseUserCreds != null) {
+                    userData.putString("userId", this.fireBaseUserCreds.getUserId());
+                    userData.putLong("expireDate", this.fireBaseUserCreds.getExpireDate());
+                }
+                this.notesFragment.setArguments(userData);
+                getSupportFragmentManager().beginTransaction().replace(R.id.contentFrame, this.notesFragment, NOTES_FRAGMENT).commit();
+            } else {
+                Utilities.buildSnackbar(this, "User is not logged in!");
+                showLoginFragment();
             }
-            this.notesFragment.setArguments(userData);
-            getSupportFragmentManager().beginTransaction().replace(R.id.contentFrame, this.notesFragment, NOTES_FRAGMENT).commit();
-
             this.fabAdd.setVisibility(View.GONE);
         }
     }
@@ -203,28 +218,40 @@ public class MainActivity extends AppCompatActivity implements ICommunication {
             .setMessage("Are you sure to logout?")
                 .setCancelable(false)
                 .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog,int id) {
+                    public void onClick(DialogInterface dialog, int id) {
+                        try {
+                            if (UserHelper.userStillLoggedIn(fireBaseUserCreds.getExpireDate())) {
+                                Firebase ref = new Firebase("https://yeah-url-extension.firebaseio.com/");
+                                ref.unauth();
 
-                        Firebase ref = new Firebase("https://yeah-url-extension.firebaseio.com/");
-                        ref.unauth();
+                                SharedPreferencesHelper.removeUserDataFromPreferences(MainActivity.this.preferences, SharedPreferencesHelper.RemoveType.All);
 
-                        SharedPreferencesHelper.removeUserDataFromPreferences(MainActivity.this.preferences, SharedPreferencesHelper.RemoveType.All);
+                                MainActivity.this.fireBaseUserCreds = null;
+                                MainActivity.this.fireBaseUser = null;
+                                tvHeaderEmail.setText("");
 
-                        MainActivity.this.fireBaseUserCreds = null;
-                        MainActivity.this.fireBaseUser = null;
-                        tvHeaderEmail.setText("");
+                                OverviewFragment overviewFragment = (OverviewFragment) getSupportFragmentManager().findFragmentByTag(OVERVIEW_FRAGMENT);
+                                if (overviewFragment != null) {
+                                    overviewFragment.removeAllItemsFromRv();
+                                }
 
-                        OverviewFragment overviewFragment = (OverviewFragment) getSupportFragmentManager().findFragmentByTag(OVERVIEW_FRAGMENT);
-                        overviewFragment.removeAllItemsFromRv();
+                                NotesFragment notesFragment = (NotesFragment) getSupportFragmentManager().findFragmentByTag(NOTES_FRAGMENT);
+                                if (notesFragment != null) {
+                                    notesFragment.removeAllItemsFromRv();
+                                }
 
-                        NotesFragment notesFragment = (NotesFragment) getSupportFragmentManager().findFragmentByTag(NOTES_FRAGMENT);
-                        notesFragment.removeAllItemsFromRv();
-
-                        showHomeFragment();
+                                showHomeFragment();
+                            } else {
+                                dialog.cancel();
+                                Utilities.buildSnackbar(MainActivity.this, "User is already logged out!");
+                            }
+                        } catch (Exception e) {
+                            Utilities.buildSnackbar(MainActivity.this, "Logout failed: " + e.getMessage());
+                        }
                     }
                 })
-                .setNegativeButton("No",new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog,int id) {
+                .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
                         dialog.cancel();
                     }
                 });

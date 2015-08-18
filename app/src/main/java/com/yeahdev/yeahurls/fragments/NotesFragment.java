@@ -83,6 +83,10 @@ public class NotesFragment extends Fragment implements ICommunicationAdapter {
         return v;
     }
 
+    /**
+     * Method to Load Data from Firebase
+     * @param userId User Id
+     */
     private void loadNotesDataFromFirebase(String userId) {
         try {
             Firebase ref = new Firebase("https://yeah-url-extension.firebaseio.com/" + userId + "/notescollector");
@@ -90,7 +94,6 @@ public class NotesFragment extends Fragment implements ICommunicationAdapter {
                 @Override
                 public void onChildAdded(DataSnapshot snapshot, String s) {
                     String objId = snapshot.getKey();
-
                     for (DataSnapshot child : snapshot.getChildren()) {
                         try {
                             NoteItem noteItem = createNoteItem(objId, child);
@@ -104,8 +107,16 @@ public class NotesFragment extends Fragment implements ICommunicationAdapter {
                 }
 
                 @Override
-                public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-
+                public void onChildChanged(DataSnapshot snapshot, String s) {
+                    String objId = snapshot.getKey();
+                    for (DataSnapshot child : snapshot.getChildren()) {
+                        try {
+                            NoteItem noteItem = createNoteItem(objId, child);
+                            overviewNotesRvAdapter.searchAndReplaceItem(noteItem);
+                        } catch (Exception e) {
+                            Utilities.buildSnackbar(getActivity(), "onChildChanged failed! Error: " + e.getMessage());
+                        }
+                    }
                 }
 
                 @Override
@@ -127,6 +138,12 @@ public class NotesFragment extends Fragment implements ICommunicationAdapter {
         }
     }
 
+    /**
+     * Helper Method to generated NoteItem from Firebase DataSnapshot child
+     * @param objId Object Id
+     * @param child DataSnapshot
+     * @return NoteItem
+     */
     private NoteItem createNoteItem(String objId, DataSnapshot child) {
         NoteItem noteItem = new NoteItem();
 
@@ -137,15 +154,17 @@ public class NotesFragment extends Fragment implements ICommunicationAdapter {
         noteItem.setKeywords(String.valueOf(map.get("keywords")));
         noteItem.setTitle(String.valueOf(map.get("title")));
 
-        if(map.get("objId") != null) {
+        if (map.get("objId") != null) {
             noteItem.setObjId(String.valueOf(map.get("objId")));
         } else {
             noteItem.setObjId(objId);
         }
-
         return noteItem;
     }
 
+    /**
+     * Method to Remove all Adapter Elements
+     */
     public void removeAllItemsFromRv() {
         try {
             overviewNotesRvAdapter.removeAllItems();
@@ -154,6 +173,12 @@ public class NotesFragment extends Fragment implements ICommunicationAdapter {
         }
     }
 
+    /**
+     * Method to Filter Adapter Elements that matching the Query
+     * @param noteCollection old Elements List
+     * @param query Search Query
+     * @return new Elements List
+     */
     private ArrayList<NoteItem> filter(ArrayList<NoteItem> noteCollection, String query) {
         query = query.toLowerCase();
 
@@ -175,18 +200,34 @@ public class NotesFragment extends Fragment implements ICommunicationAdapter {
         }
     }
 
+    /**
+     * Method to Add Element to Temp Element List
+     * @param position Position in ArrayList
+     * @param item Item Object
+     */
+    @Override
+    public void getAddedItemPosition(int position, Object item) {
+        NoteItem noteItem = (NoteItem) item;
+        if (!itemArrayList.contains(noteItem)) {
+            itemArrayList.add(position, noteItem);
+        }
+    }
+
+    /**
+     * Method to Remove Element from Temp Element List
+     * @param position Position in ArrayList
+     */
     @Override
     public void getRemovedItemPosition(int position) {
         itemArrayList.remove(position);
-        overviewNotesRvAdapter.notifyDataSetChanged();
     }
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
 
-        final MenuItem item = menu.findItem(R.id.action_search);
-        final SearchView searchView = (SearchView) MenuItemCompat.getActionView(item);
+        final MenuItem menuItem = menu.findItem(R.id.action_search);
+        final SearchView searchView = (SearchView) MenuItemCompat.getActionView(menuItem);
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {

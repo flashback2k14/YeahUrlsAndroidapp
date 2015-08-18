@@ -20,11 +20,12 @@
     <string name="hint_urls">URL</string>
 
     <string name="btn_save">Save</string>
+    <string name="btn_update">Update</string>
     <string name="btn_cancel">Cancel</string>
 
-    <string name="home_1">
-        Welcome to Yeah! URLs Android.
-        \n\nHere you can show and remove your collected URLs and Notes.
+    <string name="home_1">Welcome to\nYeah! URLs Android.</string>
+    <string name="home_2">
+        Here you can show and remove your collected URLs and Notes.
         \n\nTo collect URLs and Notes you need the Yeah! URLs Chrome Extension
         \n\nOR
         \n\nYou use the Share Menu on your Android Phone.
