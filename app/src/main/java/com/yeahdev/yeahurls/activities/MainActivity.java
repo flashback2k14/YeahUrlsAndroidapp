@@ -3,9 +3,11 @@ package com.yeahdev.yeahurls.activities;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.app.AlertDialog;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.View;
 import android.view.MenuItem;
@@ -54,6 +56,8 @@ public class MainActivity extends AppCompatActivity implements ICommunication {
     private static final String HOME_FRAGMENT = "HOME_FRAGMENT";
     private static final String OVERVIEW_FRAGMENT = "OVERVIEW_FRAGMENT";
     private static final String NOTES_FRAGMENT = "NOTES_FRAGMENT";
+
+    private boolean doubleBackToExitPressedOnce = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -329,5 +333,28 @@ public class MainActivity extends AppCompatActivity implements ICommunication {
                 return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (doubleBackToExitPressedOnce) {
+            super.onBackPressed();
+            return;
+        } else {
+            if (drawerLayout.isDrawerOpen(GravityCompat.START)){
+                drawerLayout.closeDrawer(GravityCompat.START);
+            } else {
+                drawerLayout.openDrawer(GravityCompat.START);
+            }
+        }
+
+        this.doubleBackToExitPressedOnce = true;
+
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                doubleBackToExitPressedOnce = false;
+            }
+        }, 1000); //Waiting time for secound back button press
     }
 }
