@@ -3,6 +3,7 @@ package com.yeahdev.yeahurls.util;
 import android.app.Activity;
 import android.support.design.widget.Snackbar;
 import android.view.View;
+import android.widget.Toast;
 
 import com.yeahdev.yeahurls.R;
 
@@ -14,9 +15,9 @@ public class Utilities {
             .show();
     }
 
-    public static void buildSnackbar(View view, String text) {
-        Snackbar
-            .make(view, text, Snackbar.LENGTH_LONG)
+    public static void buildToast(Activity activity, String text, int duration) {
+        Toast
+            .makeText(activity, text, duration)
             .show();
     }
 }

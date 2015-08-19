@@ -97,18 +97,14 @@ public class AddUrlActivity extends AppCompatActivity implements View.OnClickLis
                             URL url = new URL(data.getScheme(), data.getHost(), data.getPath());
                             tvUrl.setText(url.toString());
                         } catch (MalformedURLException e) {
-                            Log.d("Yeah!Urls", "AddUrlActivity: Error: " + e.getMessage());
+                            Utilities.buildToast(this, "Get URL failed!", Toast.LENGTH_LONG);
                         }
-                    } else {
-                        Log.d("Yeah!Urls", "AddUrlActivity: Error: No Data!");
                     }
                 }
                 if (action.equals(Intent.ACTION_SEND)) {
                     String sharedText = intent.getStringExtra(Intent.EXTRA_TEXT);
                     if (sharedText != null) {
                         tvUrl.setText(sharedText);
-                    }else {
-                        Log.d("Yeah!Urls", "AddUrlActivity: Error: No sharedText!");
                     }
                 }
                 btnUpdate.setVisibility(View.GONE);
@@ -155,9 +151,9 @@ public class AddUrlActivity extends AppCompatActivity implements View.OnClickLis
         if (UserHelper.userStillLoggedIn(userCreds.getExpireDate())) {
             try {
                 Firebase ref = new Firebase("https://yeah-url-extension.firebaseio.com/" + userCreds.getUserId() + "/urlcollector");
-                Firebase noteRef = ref.push();
+                Firebase urlRef = ref.push();
 
-                List<UrlItem> urlItemList = new ArrayList<>();
+                List<UrlItem> urlItemList = new ArrayList<>(1);
                 UrlItem urlItem = new UrlItem();
                 urlItem.setId(1);
                 urlItem.setTimestamp(String.valueOf(Math.round(new Date().getTime() / 1000.0)));
@@ -165,27 +161,25 @@ public class AddUrlActivity extends AppCompatActivity implements View.OnClickLis
                 urlItem.setDate(new SimpleDateFormat("dd.MM.yyyy", Locale.GERMANY).format(System.currentTimeMillis()));
                 urlItem.setKeywords(etKeywordsUrl.getText().toString());
                 urlItem.setValue(tvUrl.getText().toString());
-                urlItem.setObjId(noteRef.getKey());
+                urlItem.setObjId(urlRef.getKey());
                 urlItemList.add(urlItem);
 
-                noteRef.setValue(urlItemList, new Firebase.CompletionListener() {
+                urlRef.setValue(urlItemList, new Firebase.CompletionListener() {
                     @Override
                     public void onComplete(FirebaseError firebaseError, Firebase firebase) {
                         if (firebaseError != null) {
-                            Log.d("Yeah!Urls", "Data could not be saved. " + firebaseError.getMessage());
-                            Toast.makeText(AddUrlActivity.this, "Url saving failed: " + firebaseError.getMessage(), Toast.LENGTH_LONG).show();
+                            Utilities.buildToast(AddUrlActivity.this, "Url saving failed: " + firebaseError.getMessage(), Toast.LENGTH_LONG);
                         } else {
-                            Log.d("Yeah!Urls", "Data saved successfully.");
-                            Toast.makeText(AddUrlActivity.this, "Url saved successfully!", Toast.LENGTH_LONG).show();
+                            Utilities.buildToast(AddUrlActivity.this, "Url saved successfully!", Toast.LENGTH_LONG);
                         }
                     }
                 });
             } catch (Exception e) {
-                Log.d("Yeah!Urls", "Add Url failed! Error: " + e.getMessage());
+                Utilities.buildToast(this, "Add Url failed! Error: " + e.getMessage(), Toast.LENGTH_LONG);
                 return false;
             }
         } else {
-            Toast.makeText(this, "User is not logged in!", Toast.LENGTH_LONG).show();
+            Utilities.buildToast(this, "User is not logged in!", Toast.LENGTH_LONG);
             startActivity(new Intent(AddUrlActivity.this, MainActivity.class));
         }
         return true;
@@ -196,7 +190,7 @@ public class AddUrlActivity extends AppCompatActivity implements View.OnClickLis
             try {
                 Firebase ref = new Firebase("https://yeah-url-extension.firebaseio.com/" + userCreds.getUserId() + "/urlcollector/" + objId + "/" + id);
 
-                Map<String, Object> updateNote = new HashMap<>(3);
+                Map<String, Object> updateNote = new HashMap<>(2);
                 updateNote.put("keywords", etKeywordsUrl.getText().toString());
                 updateNote.put("value", tvUrl.getText().toString());
 
@@ -204,21 +198,19 @@ public class AddUrlActivity extends AppCompatActivity implements View.OnClickLis
                     @Override
                     public void onComplete(FirebaseError firebaseError, Firebase firebase) {
                         if (firebaseError != null) {
-                            Log.d("Yeah!Urls", "Data could not be saved. " + firebaseError.getMessage());
-                            Toast.makeText(AddUrlActivity.this, "Url updating failed: " + firebaseError.getMessage(), Toast.LENGTH_LONG).show();
+                            Utilities.buildToast(AddUrlActivity.this, "Url updating failed: " + firebaseError.getMessage(), Toast.LENGTH_LONG);
                         } else {
-                            Log.d("Yeah!Urls", "Data saved successfully.");
-                            Toast.makeText(AddUrlActivity.this, "Url updated successfully!", Toast.LENGTH_LONG).show();
+                            Utilities.buildToast(AddUrlActivity.this, "Url updated successfully!", Toast.LENGTH_LONG);
                         }
                     }
                 });
             } catch (Exception e) {
-                Log.d("Yeah!Urls", "Update Note failed! Error: " + e.getMessage());
+                Utilities.buildToast(this, "Update Url failed! Error: " + e.getMessage(), Toast.LENGTH_LONG);
                 return false;
             }
 
         } else {
-            Toast.makeText(this, "User is not logged in!", Toast.LENGTH_LONG).show();
+            Utilities.buildToast(this, "User is not logged in!", Toast.LENGTH_LONG);
             startActivity(new Intent(AddUrlActivity.this, MainActivity.class));
         }
         return true;

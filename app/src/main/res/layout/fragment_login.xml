@@ -37,7 +37,7 @@
                 android:layout_marginBottom="10dp"
                 android:hint="@string/hint_email"
                 android:textColor="@color/window_foreground"
-                android:theme="@style/EditTextStyle"/>
+                android:theme="@style/EditTextStyle" />
 
             <EditText
                 android:id="@+id/edit_text_password"

@@ -18,6 +18,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.firebase.client.ChildEventListener;
 import com.firebase.client.DataSnapshot;
@@ -57,19 +58,23 @@ public class NotesFragment extends Fragment implements ICommunicationAdapter {
 
         String userId = this.getArguments().getString("userId", "");
         long expireDate = this.getArguments().getLong("expireDate", 0);
-        long currentTimestamp = System.currentTimeMillis() / 1000;
 
-        UserCreds userCreds = UserHelper.createUserCredsObject(userId, expireDate);
+        if (!"".equals(userId) || expireDate != 0) {
+            UserCreds userCreds = UserHelper.createUserCredsObject(userId, expireDate);
 
-        rvNotes = (RecyclerView) v.findViewById(R.id.rvNotes);
-        rvNotes.setLayoutManager(new LinearLayoutManager(getActivity()));
-        rvNotes.setItemAnimator(new DefaultItemAnimator());
+            rvNotes = (RecyclerView) v.findViewById(R.id.rvNotes);
+            rvNotes.setLayoutManager(new LinearLayoutManager(getActivity()));
+            rvNotes.setItemAnimator(new DefaultItemAnimator());
 
-        overviewNotesRvAdapter = new OverviewNotesRvAdapter(getActivity(), userCreds, this);
-        rvNotes.setAdapter(overviewNotesRvAdapter);
+            overviewNotesRvAdapter = new OverviewNotesRvAdapter(getActivity(), userCreds, this);
+            rvNotes.setAdapter(overviewNotesRvAdapter);
 
-        if ((expireDate > 0) && (expireDate != currentTimestamp)) {
-            loadNotesDataFromFirebase(userCreds.getUserId());
+            if (UserHelper.userStillLoggedIn(expireDate)) {
+                loadNotesDataFromFirebase(userCreds.getUserId());
+            }
+        } else {
+            Utilities.buildSnackbar(getActivity(), "No valid User available!");
+            progressDialog.dismiss();
         }
 
         FloatingActionButton fab = (FloatingActionButton) v.findViewById(R.id.fabAddNote);
@@ -97,10 +102,12 @@ public class NotesFragment extends Fragment implements ICommunicationAdapter {
                     for (DataSnapshot child : snapshot.getChildren()) {
                         try {
                             NoteItem noteItem = createNoteItem(objId, child);
-                            itemArrayList.add(noteItem);
-                            overviewNotesRvAdapter.addItem(itemArrayList.size() - 1, noteItem);
+                            if (noteItem != null) {
+                                itemArrayList.add(noteItem);
+                                overviewNotesRvAdapter.addItem(itemArrayList.size() - 1, noteItem);
+                            }
                         } catch (Exception e) {
-                            Utilities.buildSnackbar(getActivity(), "onChildAdded failed! Error: " + e.getMessage());
+                            Utilities.buildToast(getActivity(), "onChildAdded failed! Error: " + e.getMessage(), Toast.LENGTH_LONG);
                         }
                     }
                     progressDialog.dismiss();
@@ -112,9 +119,11 @@ public class NotesFragment extends Fragment implements ICommunicationAdapter {
                     for (DataSnapshot child : snapshot.getChildren()) {
                         try {
                             NoteItem noteItem = createNoteItem(objId, child);
-                            overviewNotesRvAdapter.searchAndReplaceItem(noteItem);
+                            if (noteItem != null) {
+                                overviewNotesRvAdapter.searchAndReplaceItem(noteItem);
+                            }
                         } catch (Exception e) {
-                            Utilities.buildSnackbar(getActivity(), "onChildChanged failed! Error: " + e.getMessage());
+                            Utilities.buildToast(getActivity(), "onChildChanged failed! Error: " + e.getMessage(), Toast.LENGTH_LONG);
                         }
                     }
                 }
@@ -130,11 +139,11 @@ public class NotesFragment extends Fragment implements ICommunicationAdapter {
 
                 @Override
                 public void onCancelled(FirebaseError firebaseError) {
-                    Utilities.buildSnackbar(getActivity(), "Error Code:" + firebaseError.getCode() + ", Msg: " + firebaseError.getMessage());
+                    Utilities.buildToast(getActivity(), "Error Code:" + firebaseError.getCode() + ", Msg: " + firebaseError.getMessage(), Toast.LENGTH_LONG);
                 }
             });
         } catch (Exception e) {
-            Utilities.buildSnackbar(getActivity(), "addChildEventListener failed! Error: " + e.getMessage());
+            Utilities.buildToast(getActivity(), "addChildEventListener failed! Error: " + e.getMessage(), Toast.LENGTH_LONG);
         }
     }
 
@@ -145,19 +154,14 @@ public class NotesFragment extends Fragment implements ICommunicationAdapter {
      * @return NoteItem
      */
     private NoteItem createNoteItem(String objId, DataSnapshot child) {
-        NoteItem noteItem = new NoteItem();
-
-        HashMap<String, NoteItem> map = (HashMap<String, NoteItem>) child.getValue();
-        noteItem.setTimestamp(Long.parseLong(String.valueOf(map.get("timestamp"))));
-        noteItem.setValue(String.valueOf(map.get("value")));
-        noteItem.setId(Integer.parseInt(String.valueOf(map.get("id"))));
-        noteItem.setKeywords(String.valueOf(map.get("keywords")));
-        noteItem.setTitle(String.valueOf(map.get("title")));
-
-        if (map.get("objId") != null) {
-            noteItem.setObjId(String.valueOf(map.get("objId")));
-        } else {
-            noteItem.setObjId(objId);
+        NoteItem noteItem = null;
+        try {
+            noteItem = child.getValue(NoteItem.class);
+            if (noteItem.getObjId() == null) {
+                noteItem.setObjId(objId);
+            }
+        } catch(Exception e) {
+            Utilities.buildToast(getActivity(), "createNoteItem failed! " + e.getMessage(), Toast.LENGTH_LONG);
         }
         return noteItem;
     }
@@ -169,7 +173,7 @@ public class NotesFragment extends Fragment implements ICommunicationAdapter {
         try {
             overviewNotesRvAdapter.removeAllItems();
         } catch (Exception e) {
-            Utilities.buildSnackbar(getActivity(), "removeAllItemsFromRv failed! Error: " + e.getMessage());
+            Utilities.buildToast(getActivity(), "removeAllItemsFromRv failed! Error: " + e.getMessage(), Toast.LENGTH_LONG);
         }
     }
 

@@ -15,6 +15,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.LayoutInflater;
 import android.support.v4.app.Fragment;
+import android.widget.Toast;
 
 import com.firebase.client.ChildEventListener;
 import com.firebase.client.DataSnapshot;
@@ -24,14 +25,12 @@ import com.firebase.client.FirebaseError;
 import com.yeahdev.yeahurls.R;
 import com.yeahdev.yeahurls.adapter.OverviewRvAdapter;
 import com.yeahdev.yeahurls.interfaces.ICommunicationAdapter;
-import com.yeahdev.yeahurls.model.NoteItem;
 import com.yeahdev.yeahurls.model.UrlItem;
 import com.yeahdev.yeahurls.model.UserCreds;
 import com.yeahdev.yeahurls.util.UserHelper;
 import com.yeahdev.yeahurls.util.Utilities;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 
 
 public class OverviewFragment extends Fragment implements ICommunicationAdapter {
@@ -57,21 +56,24 @@ public class OverviewFragment extends Fragment implements ICommunicationAdapter 
 
         String userId = this.getArguments().getString("userId", "");
         long expireDate = this.getArguments().getLong("expireDate", 0);
-        long currentTimestamp = System.currentTimeMillis() / 1000;
 
-        UserCreds userCreds = UserHelper.createUserCredsObject(userId, expireDate);
+        if (!"".equals(userId) || expireDate != 0) {
+            UserCreds userCreds = UserHelper.createUserCredsObject(userId, expireDate);
 
-        rvOverview = (RecyclerView) v.findViewById(R.id.rvOverview);
-        rvOverview.setLayoutManager(new LinearLayoutManager(getActivity()));
-        rvOverview.setItemAnimator(new DefaultItemAnimator());
+            rvOverview = (RecyclerView) v.findViewById(R.id.rvOverview);
+            rvOverview.setLayoutManager(new LinearLayoutManager(getActivity()));
+            rvOverview.setItemAnimator(new DefaultItemAnimator());
 
-        overviewRvAdapter = new OverviewRvAdapter(getActivity(), userCreds, this);
-        rvOverview.setAdapter(overviewRvAdapter);
+            overviewRvAdapter = new OverviewRvAdapter(getActivity(), userCreds, this);
+            rvOverview.setAdapter(overviewRvAdapter);
 
-        if ((expireDate > 0) && (expireDate != currentTimestamp)) {
-            loadUrlDataFromFirebase(userCreds.getUserId());
+            if (UserHelper.userStillLoggedIn(expireDate)) {
+                loadUrlDataFromFirebase(userCreds.getUserId());
+            }
+        } else {
+            Utilities.buildSnackbar(getActivity(), "No valid User available!");
+            progressDialog.dismiss();
         }
-
         return v;
     }
 
@@ -89,10 +91,12 @@ public class OverviewFragment extends Fragment implements ICommunicationAdapter 
                     for (DataSnapshot child : snapshot.getChildren()) {
                         try {
                             UrlItem urlItem = createUrlItem(objId, child);
-                            itemArrayList.add(urlItem);
-                            overviewRvAdapter.addItem(itemArrayList.size() - 1, urlItem);
+                            if (urlItem != null) {
+                                itemArrayList.add(urlItem);
+                                overviewRvAdapter.addItem(itemArrayList.size() - 1, urlItem);
+                            }
                         } catch (Exception e) {
-                            Utilities.buildSnackbar(getActivity(), "onChildAdded failed! Error: " + e.getMessage());
+                            Utilities.buildToast(getActivity(), "onChildAdded failed! Error: " + e.getMessage(), Toast.LENGTH_LONG);
                         }
                     }
                     progressDialog.dismiss();
@@ -104,9 +108,11 @@ public class OverviewFragment extends Fragment implements ICommunicationAdapter 
                     for (DataSnapshot child : snapshot.getChildren()) {
                         try {
                             UrlItem urlItem = createUrlItem(objId, child);
-                            overviewRvAdapter.searchAndReplaceItem(urlItem);
+                            if (urlItem != null) {
+                                overviewRvAdapter.searchAndReplaceItem(urlItem);
+                            }
                         } catch (Exception e) {
-                            Utilities.buildSnackbar(getActivity(), "onChildChanged failed! Error: " + e.getMessage());
+                            Utilities.buildToast(getActivity(), "onChildChanged failed! Error: " + e.getMessage(), Toast.LENGTH_LONG);
                         }
                     }
                 }
@@ -122,11 +128,11 @@ public class OverviewFragment extends Fragment implements ICommunicationAdapter 
 
                 @Override
                 public void onCancelled(FirebaseError firebaseError) {
-                    Utilities.buildSnackbar(getActivity(), "Error Code:" + firebaseError.getCode() + ", Msg: " + firebaseError.getMessage());
+                    Utilities.buildToast(getActivity(), "Error Code:" + firebaseError.getCode() + ", Msg: " + firebaseError.getMessage(), Toast.LENGTH_LONG);
                 }
             });
         } catch (Exception e) {
-            Utilities.buildSnackbar(getActivity(), "addChildEventListener failed! Error: " + e.getMessage());
+            Utilities.buildToast(getActivity(), "addChildEventListener failed! Error: " + e.getMessage(), Toast.LENGTH_LONG);
         }
     }
 
@@ -137,20 +143,14 @@ public class OverviewFragment extends Fragment implements ICommunicationAdapter 
      * @return UrlItem
      */
     private UrlItem createUrlItem(String objId, DataSnapshot child) {
-        UrlItem urlItem = new UrlItem();
-
-        HashMap<String, UrlItem> map = (HashMap<String, UrlItem>) child.getValue();
-        urlItem.setDate(String.valueOf(map.get("date")));
-        urlItem.setTimestamp(String.valueOf(map.get("timestamp")));
-        urlItem.setValue(String.valueOf(map.get("value")));
-        urlItem.setTime(String.valueOf(map.get("time")));
-        urlItem.setId(Integer.parseInt(String.valueOf(map.get("id"))));
-        urlItem.setKeywords(String.valueOf(map.get("keywords")));
-
-        if(map.get("objId") != null) {
-            urlItem.setObjId(String.valueOf(map.get("objId")));
-        } else {
-            urlItem.setObjId(objId);
+        UrlItem urlItem = null;
+        try {
+            urlItem = child.getValue(UrlItem.class);
+            if (urlItem.getObjId() == null) {
+                urlItem.setObjId(objId);
+            }
+        } catch(Exception e) {
+            Utilities.buildToast(getActivity(), "createUrlItem failed! " + e.getMessage(), Toast.LENGTH_LONG);
         }
         return urlItem;
     }
@@ -162,7 +162,7 @@ public class OverviewFragment extends Fragment implements ICommunicationAdapter 
         try {
             overviewRvAdapter.removeAllItems();
         } catch (Exception e) {
-            Utilities.buildSnackbar(getActivity(), "removeAllItemsFromRv failed! Error: " + e.getMessage());
+            Utilities.buildToast(getActivity(), "removeAllItemsFromRv failed! Error: " + e.getMessage(), Toast.LENGTH_LONG);
         }
     }
 
@@ -237,5 +237,4 @@ public class OverviewFragment extends Fragment implements ICommunicationAdapter 
             }
         });
     }
-
 }

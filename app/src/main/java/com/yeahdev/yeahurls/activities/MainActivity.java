@@ -64,8 +64,6 @@ public class MainActivity extends AppCompatActivity implements ICommunication {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Firebase.setAndroidContext(this);
-
         setupDrawerLayout();
         setupNavigationView();
         setupToolbar();
@@ -157,6 +155,9 @@ public class MainActivity extends AppCompatActivity implements ICommunication {
         this.notesFragment = NotesFragment.newInstance();
     }
 
+    /**
+     * Fragments
+     */
     private void showLoginFragment() {
         LoginFragment loginFragment = (LoginFragment) getSupportFragmentManager().findFragmentByTag(LOGIN_FRAGMENT);
 
@@ -319,17 +320,15 @@ public class MainActivity extends AppCompatActivity implements ICommunication {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-
         if (drawerToggle.onOptionsItemSelected(item)) {
             return true;
         }
-
         switch (item.getItemId()) {
             case android.R.id.home:
                 drawerLayout.openDrawer(GravityCompat.START);
                 return true;
             case R.id.action_settings:
-                Utilities.buildSnackbar(this, "From Settings");
+                Utilities.buildSnackbar(this, "Nothing to see here! ;-)");
                 return true;
         }
         return super.onOptionsItemSelected(item);

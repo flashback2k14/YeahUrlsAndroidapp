@@ -21,6 +21,7 @@ import com.yeahdev.yeahurls.model.NoteItem;
 import com.yeahdev.yeahurls.model.UserCreds;
 import com.yeahdev.yeahurls.util.SharedPreferencesHelper;
 import com.yeahdev.yeahurls.util.UserHelper;
+import com.yeahdev.yeahurls.util.Utilities;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -91,18 +92,14 @@ public class AddNoteActivity extends AppCompatActivity implements View.OnClickLi
                             URL url = new URL(data.getScheme(), data.getHost(), data.getPath());
                             etNotes.setText(url.toString());
                         } catch (MalformedURLException e) {
-                            Log.d("Yeah!Urls", "AddNoteActivity: Error: " + e.getMessage());
+                            Utilities.buildToast(this, "Get URL failed!", Toast.LENGTH_LONG);
                         }
-                    } else {
-                        Log.d("Yeah!Urls", "AddNoteActivity: Error: No Data!");
                     }
                 }
                 if (action.equals(Intent.ACTION_SEND)) {
                     String sharedText = intent.getStringExtra(Intent.EXTRA_TEXT);
                     if (sharedText != null) {
                         etNotes.setText(sharedText);
-                    }else {
-                        Log.d("Yeah!Urls", "AddNoteActivity: Error: No sharedText!");
                     }
                 }
                 btnUpdate.setVisibility(View.GONE);
@@ -172,20 +169,18 @@ public class AddNoteActivity extends AppCompatActivity implements View.OnClickLi
                     @Override
                     public void onComplete(FirebaseError firebaseError, Firebase firebase) {
                         if (firebaseError != null) {
-                            Log.d("Yeah!Urls", "Data could not be saved. " + firebaseError.getMessage());
-                            Toast.makeText(AddNoteActivity.this, "Note saving failed: " + firebaseError.getMessage(), Toast.LENGTH_LONG).show();
+                            Utilities.buildToast(AddNoteActivity.this, "Note saving failed: " + firebaseError.getMessage(), Toast.LENGTH_LONG);
                         } else {
-                            Log.d("Yeah!Urls", "Data saved successfully.");
-                            Toast.makeText(AddNoteActivity.this, "Note saved successfully!", Toast.LENGTH_LONG).show();
+                            Utilities.buildToast(AddNoteActivity.this, "Note saved successfully!", Toast.LENGTH_LONG);
                         }
                     }
                 });
             } catch (Exception e) {
-                Log.d("Yeah!Urls", "Add Note failed! Error: " + e.getMessage());
+                Utilities.buildToast(this, "Add Note failed! Error: " + e.getMessage(), Toast.LENGTH_LONG);
                 return false;
             }
         } else {
-            Toast.makeText(this, "User is not logged in!", Toast.LENGTH_LONG).show();
+            Utilities.buildToast(this, "User is not logged in!", Toast.LENGTH_LONG);
             startActivity(new Intent(AddNoteActivity.this, MainActivity.class));
             return true;
         }
@@ -206,20 +201,18 @@ public class AddNoteActivity extends AppCompatActivity implements View.OnClickLi
                     @Override
                     public void onComplete(FirebaseError firebaseError, Firebase firebase) {
                         if (firebaseError != null) {
-                            Log.d("Yeah!Urls", "Data could not be saved. " + firebaseError.getMessage());
-                            Toast.makeText(AddNoteActivity.this, "Note updating failed: " + firebaseError.getMessage(), Toast.LENGTH_LONG).show();
+                            Utilities.buildToast(AddNoteActivity.this, "Note updating failed: " + firebaseError.getMessage(), Toast.LENGTH_LONG);
                         } else {
-                            Log.d("Yeah!Urls", "Data saved successfully.");
-                            Toast.makeText(AddNoteActivity.this, "Note updated successfully!", Toast.LENGTH_LONG).show();
+                            Utilities.buildToast(AddNoteActivity.this, "Note updated successfully!", Toast.LENGTH_LONG);
                         }
                     }
                 });
             } catch (Exception e) {
-                Log.d("Yeah!Urls", "Update Note failed! Error: " + e.getMessage());
+                Utilities.buildToast(this, "Update Note failed! Error: " + e.getMessage(), Toast.LENGTH_LONG);
                 return false;
             }
         } else {
-            Toast.makeText(this, "User is not logged in!", Toast.LENGTH_LONG).show();
+            Utilities.buildToast(this, "User is not logged in!", Toast.LENGTH_LONG);
             startActivity(new Intent(AddNoteActivity.this, MainActivity.class));
         }
         return true;
