@@ -40,6 +40,7 @@ import java.util.HashMap;
 
 public class NotesFragment extends Fragment implements ICommunicationAdapter {
     private ProgressDialog progressDialog;
+    private FloatingActionButton fab;
     private RecyclerView rvNotes;
 
     private OverviewNotesRvAdapter overviewNotesRvAdapter;
@@ -49,12 +50,14 @@ public class NotesFragment extends Fragment implements ICommunicationAdapter {
     public static NotesFragment newInstance() { return new NotesFragment(); }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(final LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_notes, container, false);
         setHasOptionsMenu(true);
 
         progressDialog = ProgressDialog.show(getActivity(), "Loading", "Get Notes from Firebase...", false, true);
         itemArrayList.clear();
+
+        fab = (FloatingActionButton) v.findViewById(R.id.fabAddNote);
 
         String userId = this.getArguments().getString("userId", "");
         long expireDate = this.getArguments().getLong("expireDate", 0);
@@ -72,12 +75,24 @@ public class NotesFragment extends Fragment implements ICommunicationAdapter {
             if (UserHelper.userStillLoggedIn(expireDate)) {
                 loadNotesDataFromFirebase(userCreds.getUserId());
             }
+
+            rvNotes.addOnScrollListener(new RecyclerView.OnScrollListener() {
+                @Override
+                public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                    super.onScrollStateChanged(recyclerView, newState);
+
+                    if (newState == RecyclerView.SCROLL_STATE_DRAGGING) {
+                        fab.hide();
+                    } else {
+                        fab.show();
+                    }
+                }
+            });
         } else {
             Utilities.buildSnackbar(getActivity(), "No valid User available!");
             progressDialog.dismiss();
         }
 
-        FloatingActionButton fab = (FloatingActionButton) v.findViewById(R.id.fabAddNote);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
