@@ -9,7 +9,6 @@ import android.view.ViewGroup;
 
 import com.yeahdev.yeahurls.R;
 
-
 public class HomeFragment extends Fragment {
 
     public HomeFragment() {}

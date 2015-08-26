@@ -198,7 +198,7 @@ public class OverviewNotesRvAdapter extends RecyclerView.Adapter<OverviewNotesRv
      * @param newModels new filtered ArrayList
      */
     private void applyAndAnimateRemovals(ArrayList<NoteItem> newModels) {
-        for (int i = getItemCount() - 1; i >= 0; i--) {
+        for (int i = this.getItemCount() - 1; i >= 0; i--) {
             final NoteItem model = this.noteItemCollection.get(i);
             if (!newModels.contains(model)) {
                 this.removeFilterItem(i);
@@ -218,7 +218,7 @@ public class OverviewNotesRvAdapter extends RecyclerView.Adapter<OverviewNotesRv
      * @param newModels new filtered ArrayList
      */
     private void applyAndAnimateAdditions(ArrayList<NoteItem> newModels) {
-        for (int i = 0, count = newModels.size(); i < count; i++) {
+        for (int i = 0; i < newModels.size(); i++) {
             final NoteItem model = newModels.get(i);
             if (!this.noteItemCollection.contains(model)) {
                 this.addFilterItem(i, model);
@@ -231,6 +231,9 @@ public class OverviewNotesRvAdapter extends RecyclerView.Adapter<OverviewNotesRv
      * @param model NoteItem
      */
     public void addFilterItem(int position, NoteItem model) {
+        if (position > this.noteItemCollection.size()) {
+            position--;
+        }
         this.noteItemCollection.add(position, model);
         notifyItemInserted(position);
     }

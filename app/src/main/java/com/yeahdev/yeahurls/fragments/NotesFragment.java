@@ -27,16 +27,13 @@ import com.firebase.client.FirebaseError;
 import com.yeahdev.yeahurls.R;
 import com.yeahdev.yeahurls.activities.AddNoteActivity;
 import com.yeahdev.yeahurls.adapter.OverviewNotesRvAdapter;
-import com.yeahdev.yeahurls.adapter.OverviewRvAdapter;
 import com.yeahdev.yeahurls.interfaces.ICommunicationAdapter;
 import com.yeahdev.yeahurls.model.NoteItem;
-import com.yeahdev.yeahurls.model.UrlItem;
 import com.yeahdev.yeahurls.model.UserCreds;
 import com.yeahdev.yeahurls.util.UserHelper;
 import com.yeahdev.yeahurls.util.Utilities;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 
 public class NotesFragment extends Fragment implements ICommunicationAdapter {
     private ProgressDialog progressDialog;

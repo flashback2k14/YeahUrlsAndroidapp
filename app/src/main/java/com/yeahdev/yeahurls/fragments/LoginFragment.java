@@ -1,8 +1,7 @@
 package com.yeahdev.yeahurls.fragments;
 
-import android.app.Activity;
+import android.content.Context;
 import android.os.Bundle;
-import android.support.design.widget.Snackbar;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.LayoutInflater;
@@ -69,21 +68,16 @@ public class LoginFragment extends Fragment {
                 }
             }
         });
-
         return v;
     }
 
     @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
+    public void onAttach(Context context) {
+        super.onAttach(context);
         try {
-            passUserToMainActivity = (ICommunication) activity;
+            passUserToMainActivity = (ICommunication) getActivity();
         } catch (ClassCastException e) {
-            Snackbar
-                .make(getActivity().findViewById(R.id.coordinatorLayout),
-                        activity.toString() + " must implement ICommunication",
-                        Snackbar.LENGTH_LONG)
-                .show();
+            Utilities.buildSnackbar(getActivity(), getActivity().toString() + " must implement ICommunication!");
         }
     }
 
