@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="fill_parent"
+    android:id="@+id/flOverview"
     tools:context="com.yeahdev.yeahurls.fragments.OverviewFragment">
 
     <android.support.v7.widget.RecyclerView

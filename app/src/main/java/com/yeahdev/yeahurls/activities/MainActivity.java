@@ -7,7 +7,6 @@ import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.app.AlertDialog;
-import android.view.Gravity;
 import android.view.Menu;
 import android.view.View;
 import android.view.MenuItem;
@@ -36,11 +35,12 @@ import com.yeahdev.yeahurls.util.SharedPreferencesHelper;
 import com.yeahdev.yeahurls.util.UserHelper;
 import com.yeahdev.yeahurls.util.Utilities;
 
+
 public class MainActivity extends AppCompatActivity implements ICommunication {
     private DrawerLayout drawerLayout;
     private ActionBarDrawerToggle drawerToggle;
     private FloatingActionButton fabAdd;
-    private TextView tvHeaderEmail;
+    private TextView headerEmail;
 
     private LoginFragment loginFragment;
     private HomeFragment homeFragment;
@@ -120,7 +120,7 @@ public class MainActivity extends AppCompatActivity implements ICommunication {
                 return false;
             }
         });
-        tvHeaderEmail = (TextView) findViewById(R.id.tvHeaderEmail);
+        headerEmail = (TextView) findViewById(R.id.tvHeaderEmail);
     }
 
     private void setupToolbar() {
@@ -177,43 +177,37 @@ public class MainActivity extends AppCompatActivity implements ICommunication {
     }
 
     private void showOverviewFragment() {
-        OverviewFragment overviewFragment = (OverviewFragment) getSupportFragmentManager().findFragmentByTag(OVERVIEW_FRAGMENT);
-
-        if (overviewFragment == null) {
-            if (this.fireBaseUserCreds != null && UserHelper.userStillLoggedIn(fireBaseUserCreds.getExpireDate())) {
+        if (this.fireBaseUserCreds != null && UserHelper.userStillLoggedIn(this.fireBaseUserCreds.getExpireDate())) {
+            OverviewFragment overviewFragment = (OverviewFragment) getSupportFragmentManager().findFragmentByTag(OVERVIEW_FRAGMENT);
+            if (overviewFragment == null) {
                 Bundle userData = new Bundle();
-                if (this.fireBaseUserCreds != null) {
-                    userData.putString("userId", this.fireBaseUserCreds.getUserId());
-                    userData.putLong("expireDate", this.fireBaseUserCreds.getExpireDate());
-                }
+                userData.putString("userId", this.fireBaseUserCreds.getUserId());
+                userData.putLong("expireDate", this.fireBaseUserCreds.getExpireDate());
                 this.overviewFragment.setArguments(userData);
                 getSupportFragmentManager().beginTransaction().replace(R.id.contentFrame, this.overviewFragment, OVERVIEW_FRAGMENT).commit();
-            } else {
-                Utilities.buildSnackbar(this, "User is not logged in!");
-                showLoginFragment();
             }
-            this.fabAdd.setVisibility(View.GONE);
+        } else {
+            Utilities.buildSnackbar(this, "User is not logged in!");
+            showLoginFragment();
         }
+        this.fabAdd.setVisibility(View.GONE);
     }
 
     private void showNotesFragment() {
-        NotesFragment notesFragment = (NotesFragment) getSupportFragmentManager().findFragmentByTag(NOTES_FRAGMENT);
-
-        if (notesFragment == null) {
-            if (this.fireBaseUserCreds != null && UserHelper.userStillLoggedIn(fireBaseUserCreds.getExpireDate())) {
+        if (this.fireBaseUserCreds != null && UserHelper.userStillLoggedIn(fireBaseUserCreds.getExpireDate())) {
+            NotesFragment notesFragment = (NotesFragment) getSupportFragmentManager().findFragmentByTag(NOTES_FRAGMENT);
+            if (notesFragment == null) {
                 Bundle userData = new Bundle();
-                if (this.fireBaseUserCreds != null) {
-                    userData.putString("userId", this.fireBaseUserCreds.getUserId());
-                    userData.putLong("expireDate", this.fireBaseUserCreds.getExpireDate());
-                }
+                userData.putString("userId", this.fireBaseUserCreds.getUserId());
+                userData.putLong("expireDate", this.fireBaseUserCreds.getExpireDate());
                 this.notesFragment.setArguments(userData);
                 getSupportFragmentManager().beginTransaction().replace(R.id.contentFrame, this.notesFragment, NOTES_FRAGMENT).commit();
-            } else {
-                Utilities.buildSnackbar(this, "User is not logged in!");
-                showLoginFragment();
             }
-            this.fabAdd.setVisibility(View.GONE);
+        } else {
+            Utilities.buildSnackbar(this, "User is not logged in!");
+            showLoginFragment();
         }
+        this.fabAdd.setVisibility(View.GONE);
     }
 
     private void logoutFromFirebase() {
@@ -233,7 +227,7 @@ public class MainActivity extends AppCompatActivity implements ICommunication {
 
                                 MainActivity.this.fireBaseUserCreds = null;
                                 MainActivity.this.fireBaseUser = null;
-                                tvHeaderEmail.setText("");
+                                headerEmail.setText("");
 
                                 OverviewFragment overviewFragment = (OverviewFragment) getSupportFragmentManager().findFragmentByTag(OVERVIEW_FRAGMENT);
                                 if (overviewFragment != null) {
@@ -273,7 +267,7 @@ public class MainActivity extends AppCompatActivity implements ICommunication {
 
             if (UserHelper.userStillLoggedIn(fireBaseUserCreds.getExpireDate())) {
                 fireBaseUser = SharedPreferencesHelper.getUserFromPreferences(this.preferences);
-                tvHeaderEmail.setText(fireBaseUser.getEmailAddress());
+                headerEmail.setText(fireBaseUser.getEmailAddress());
                 showHomeFragment();
             } else {
                 showLoginFragment();
@@ -292,7 +286,7 @@ public class MainActivity extends AppCompatActivity implements ICommunication {
         SharedPreferencesHelper.setUserToPreferences(this.preferences, this.fireBaseUser);
         SharedPreferencesHelper.setUserCredsToPreferences(this.preferences, this.fireBaseUserCreds);
 
-        tvHeaderEmail.setText(fireBaseUser.getEmailAddress());
+        headerEmail.setText(fireBaseUser.getEmailAddress());
 
         showOverviewFragment();
     }
@@ -354,6 +348,6 @@ public class MainActivity extends AppCompatActivity implements ICommunication {
             public void run() {
                 doubleBackToExitPressedOnce = false;
             }
-        }, 1000); //Waiting time for secound back button press
+        }, 1000); //Waiting time for second back button press
     }
 }

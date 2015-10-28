@@ -10,15 +10,16 @@
     android:gravity="bottom">
 
     <TextView
+        android:id="@+id/tvHeadline"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/app_name"
         android:textSize="20sp"/>
 
     <TextView
+        android:id="@+id/tvHeaderEmail"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/tvHeaderEmail"
         android:textSize="15sp"/>
 
 </LinearLayout>

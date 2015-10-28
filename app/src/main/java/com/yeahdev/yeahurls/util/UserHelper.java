@@ -22,6 +22,6 @@ public class UserHelper {
     }
 
     public static boolean userStillLoggedIn(long userExpireDate) {
-        return userExpireDate != 0 && userExpireDate != Math.round(new Date().getTime() / 1000.0);
+        return userExpireDate != 0 && userExpireDate >= Math.round(new Date().getTime() / 1000.0);
     }
 }

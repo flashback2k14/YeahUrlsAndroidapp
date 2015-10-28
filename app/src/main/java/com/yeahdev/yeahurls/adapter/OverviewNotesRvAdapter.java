@@ -190,28 +190,15 @@ public class OverviewNotesRvAdapter extends RecyclerView.Adapter<OverviewNotesRv
      * @param models new filtered ArrayList
      */
     public void animateTo(ArrayList<NoteItem> models) {
-        this.applyAndAnimateRemovals(models);
+        this.applyAndAnimateRemovals();
         this.applyAndAnimateAdditions(models);
     }
     /**
      * Method to Remove not used ArrayList Elements from Adapter
-     * @param newModels new filtered ArrayList
      */
-    private void applyAndAnimateRemovals(ArrayList<NoteItem> newModels) {
-        for (int i = this.getItemCount() - 1; i >= 0; i--) {
-            final NoteItem model = this.noteItemCollection.get(i);
-            if (!newModels.contains(model)) {
-                this.removeFilterItem(i);
-            }
-        }
-    }
-    /**
-     * Method Remove Items on Parameter Position
-     * @param position Position in Adapter
-     */
-    public void removeFilterItem(int position) {
-        this.noteItemCollection.remove(position);
-        notifyItemRemoved(position);
+    private void applyAndAnimateRemovals() {
+        this.noteItemCollection.clear();
+        notifyDataSetChanged();
     }
     /**
      * Method to Apply only filtered ArrayList Elements to Adapter
@@ -219,10 +206,7 @@ public class OverviewNotesRvAdapter extends RecyclerView.Adapter<OverviewNotesRv
      */
     private void applyAndAnimateAdditions(ArrayList<NoteItem> newModels) {
         for (int i = 0; i < newModels.size(); i++) {
-            final NoteItem model = newModels.get(i);
-            if (!this.noteItemCollection.contains(model)) {
-                this.addFilterItem(i, model);
-            }
+            this.addFilterItem(i, newModels.get(i));
         }
     }
     /**
@@ -231,9 +215,6 @@ public class OverviewNotesRvAdapter extends RecyclerView.Adapter<OverviewNotesRv
      * @param model NoteItem
      */
     public void addFilterItem(int position, NoteItem model) {
-        if (position > this.noteItemCollection.size()) {
-            position--;
-        }
         this.noteItemCollection.add(position, model);
         notifyItemInserted(position);
     }

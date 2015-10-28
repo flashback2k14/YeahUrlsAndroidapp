@@ -42,9 +42,7 @@ public class OverviewFragment extends Fragment implements ICommunicationAdapter 
 
     public OverviewFragment() { itemArrayList = new ArrayList<>(); }
 
-    public static OverviewFragment newInstance() {
-        return new OverviewFragment();
-    }
+    public static OverviewFragment newInstance() { return new OverviewFragment(); }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {

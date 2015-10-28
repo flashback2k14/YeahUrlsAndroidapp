@@ -201,39 +201,23 @@ public class OverviewRvAdapter extends RecyclerView.Adapter<OverviewRvAdapter.Ov
      * @param models new filtered ArrayList
      */
     public void animateTo(ArrayList<UrlItem> models) {
-        this.applyAndAnimateRemovals(models);
+        this.applyAndAnimateRemovals();
         this.applyAndAnimateAdditions(models);
     }
     /**
      * Method to Remove not used ArrayList Elements from Adapter
-     * @param newModels new filtered ArrayList
      */
-    private void applyAndAnimateRemovals(ArrayList<UrlItem> newModels) {
-        for (int i = getItemCount() - 1; i >= 0; i--) {
-            final UrlItem model = this.urlItemCollection.get(i);
-            if (!newModels.contains(model)) {
-                this.removeFilterItem(i);
-            }
-        }
-    }
-    /**
-     * Method Remove Items on Parameter Position
-     * @param position Position in Adapter
-     */
-    public void removeFilterItem(int position) {
-        this.urlItemCollection.remove(position);
-        notifyItemRemoved(position);
+    private void applyAndAnimateRemovals() {
+        this.urlItemCollection.clear();
+        notifyDataSetChanged();
     }
     /**
      * Method to Apply only filtered ArrayList Elements to Adapter
      * @param newModels new filtered ArrayList
      */
     private void applyAndAnimateAdditions(ArrayList<UrlItem> newModels) {
-        for (int i = 0, count = newModels.size(); i < count; i++) {
-            final UrlItem model = newModels.get(i);
-            if (!this.urlItemCollection.contains(model)) {
-                this.addFilterItem(i, model);
-            }
+        for (int i = 0; i < newModels.size(); i++) {
+            this.addFilterItem(i, newModels.get(i));
         }
     }
     /**
