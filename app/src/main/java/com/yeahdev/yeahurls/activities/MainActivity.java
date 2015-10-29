@@ -2,9 +2,11 @@ package com.yeahdev.yeahurls.activities;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
+import android.support.v4.content.res.ResourcesCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.app.AlertDialog;
 import android.view.Menu;
@@ -23,6 +25,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.widget.TextView;
 
 import com.firebase.client.Firebase;
+import com.mikhaellopez.circularimageview.CircularImageView;
 import com.yeahdev.yeahurls.R;
 import com.yeahdev.yeahurls.fragments.HomeFragment;
 import com.yeahdev.yeahurls.fragments.LoginFragment;
@@ -31,6 +34,7 @@ import com.yeahdev.yeahurls.fragments.OverviewFragment;
 import com.yeahdev.yeahurls.interfaces.ICommunication;
 import com.yeahdev.yeahurls.model.User;
 import com.yeahdev.yeahurls.model.UserCreds;
+import com.yeahdev.yeahurls.util.ImageLoader;
 import com.yeahdev.yeahurls.util.SharedPreferencesHelper;
 import com.yeahdev.yeahurls.util.UserHelper;
 import com.yeahdev.yeahurls.util.Utilities;
@@ -40,6 +44,7 @@ public class MainActivity extends AppCompatActivity implements ICommunication {
     private DrawerLayout drawerLayout;
     private ActionBarDrawerToggle drawerToggle;
     private FloatingActionButton fabAdd;
+    private CircularImageView profileImage;
     private TextView headerEmail;
 
     private LoginFragment loginFragment;
@@ -120,6 +125,7 @@ public class MainActivity extends AppCompatActivity implements ICommunication {
                 return false;
             }
         });
+        profileImage = (CircularImageView) findViewById(R.id.cvProfileImage);
         headerEmail = (TextView) findViewById(R.id.tvHeaderEmail);
     }
 
@@ -153,6 +159,23 @@ public class MainActivity extends AppCompatActivity implements ICommunication {
         this.homeFragment = HomeFragment.newInstance();
         this.overviewFragment = OverviewFragment.newInstance();
         this.notesFragment = NotesFragment.newInstance();
+    }
+
+    private void setupPreferences() {
+        preferences = PreferenceManager.getDefaultSharedPreferences(this);
+
+        if (fireBaseUserCreds == null) {
+            fireBaseUserCreds = SharedPreferencesHelper.getUserCredsFromPreferences(this.preferences);
+
+            if (UserHelper.userStillLoggedIn(fireBaseUserCreds.getExpireDate())) {
+                fireBaseUser = SharedPreferencesHelper.getUserFromPreferences(this.preferences);
+                new ImageLoader(profileImage).execute(this.fireBaseUser.getProfileImage());
+                headerEmail.setText(fireBaseUser.getEmailAddress());
+                showHomeFragment();
+            } else {
+                showLoginFragment();
+            }
+        }
     }
 
     /**
@@ -227,6 +250,8 @@ public class MainActivity extends AppCompatActivity implements ICommunication {
 
                                 MainActivity.this.fireBaseUserCreds = null;
                                 MainActivity.this.fireBaseUser = null;
+
+                                profileImage.setImageDrawable(ResourcesCompat.getDrawable(getResources(), R.mipmap.ic_launcher, null));
                                 headerEmail.setText("");
 
                                 OverviewFragment overviewFragment = (OverviewFragment) getSupportFragmentManager().findFragmentByTag(OVERVIEW_FRAGMENT);
@@ -259,22 +284,6 @@ public class MainActivity extends AppCompatActivity implements ICommunication {
         alertDialog.show();
     }
 
-    private void setupPreferences() {
-        preferences = PreferenceManager.getDefaultSharedPreferences(this);
-
-        if (fireBaseUserCreds == null) {
-            fireBaseUserCreds = SharedPreferencesHelper.getUserCredsFromPreferences(this.preferences);
-
-            if (UserHelper.userStillLoggedIn(fireBaseUserCreds.getExpireDate())) {
-                fireBaseUser = SharedPreferencesHelper.getUserFromPreferences(this.preferences);
-                headerEmail.setText(fireBaseUser.getEmailAddress());
-                showHomeFragment();
-            } else {
-                showLoginFragment();
-            }
-        }
-    }
-
     /**
      * Interface Methods
      */
@@ -286,6 +295,7 @@ public class MainActivity extends AppCompatActivity implements ICommunication {
         SharedPreferencesHelper.setUserToPreferences(this.preferences, this.fireBaseUser);
         SharedPreferencesHelper.setUserCredsToPreferences(this.preferences, this.fireBaseUserCreds);
 
+        new ImageLoader(profileImage).execute(this.fireBaseUser.getProfileImage());
         headerEmail.setText(fireBaseUser.getEmailAddress());
 
         showOverviewFragment();

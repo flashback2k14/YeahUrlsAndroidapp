@@ -3,6 +3,7 @@ package com.yeahdev.yeahurls.model;
 public class User {
     private String emailAddress;
     private String provider;
+    private String profileImage;
 
     public String getEmailAddress() {
         return emailAddress;
@@ -18,5 +19,13 @@ public class User {
 
     public void setProvider(String provider) {
         this.provider = provider;
+    }
+
+    public String getProfileImage() {
+        return profileImage;
+    }
+
+    public void setProfileImage(String profileImage) {
+        this.profileImage = profileImage;
     }
 }

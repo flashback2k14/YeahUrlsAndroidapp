@@ -8,7 +8,7 @@ import com.yeahdev.yeahurls.model.UserCreds;
 
 public class SharedPreferencesHelper {
 
-    public static enum RemoveType {
+    public enum RemoveType {
         UserCred,
         User,
         All
@@ -18,6 +18,7 @@ public class SharedPreferencesHelper {
         SharedPreferences.Editor editor = preferences.edit();
         editor.putString("emailAddress", user.getEmailAddress());
         editor.putString("provider", user.getProvider());
+        editor.putString("profileImage", user.getProfileImage());
         editor.apply();
     }
 
@@ -32,6 +33,7 @@ public class SharedPreferencesHelper {
         User u = new User();
         u.setEmailAddress(preferences.getString("emailAddress", null));
         u.setProvider(preferences.getString("provider", null));
+        u.setProfileImage(preferences.getString("profileImage", null));
         return u;
     }
 
@@ -55,12 +57,14 @@ public class SharedPreferencesHelper {
             case User:
                 editor.remove("emailAddress");
                 editor.remove("provider");
+                editor.remove("profileImage");
                 editor.apply();
                 break;
 
             case All:
                 editor.remove("userId");
                 editor.remove("expireDate");
+                editor.remove("profileImage");
                 editor.remove("emailAddress");
                 editor.remove("provider");
                 editor.apply();

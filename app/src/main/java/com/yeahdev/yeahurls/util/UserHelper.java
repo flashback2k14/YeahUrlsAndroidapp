@@ -7,10 +7,11 @@ import java.util.Date;
 
 public class UserHelper {
 
-    public static User createUserObject(String email, String prov) {
+    public static User createUserObject(String email, String prov, String profImage) {
         User u = new User();
         u.setEmailAddress(email);
         u.setProvider(prov);
+        u.setProfileImage(profImage);
         return u;
     }
 

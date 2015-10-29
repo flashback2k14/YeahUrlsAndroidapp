@@ -51,6 +51,7 @@ public class LoginFragment extends Fragment {
                                     User user = new User();
                                     user.setEmailAddress(etEmailAddress.getText().toString());
                                     user.setProvider(authData.getProvider());
+                                    user.setProfileImage(authData.getProviderData().get("profileImageURL").toString());
 
                                     etEmailAddress.setText("");
                                     etPassword.setText("");
