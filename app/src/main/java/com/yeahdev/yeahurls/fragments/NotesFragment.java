@@ -206,6 +206,7 @@ public class NotesFragment extends Fragment implements ICommunicationAdapter {
                 final String text = item.getValue().toLowerCase().trim();
                 if (text.contains(query)) {
                     filteredModelList.add(item);
+                    continue;
                 }
                 final String textKey = item.getKeywords().toLowerCase().trim();
                 if (textKey.contains(query)) {
