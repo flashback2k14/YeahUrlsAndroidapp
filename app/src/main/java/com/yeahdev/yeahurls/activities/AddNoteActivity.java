@@ -53,9 +53,15 @@ public class AddNoteActivity extends AppCompatActivity implements View.OnClickLi
         userCreds = SharedPreferencesHelper.getUserCredsFromPreferences(preferences);
         intent = getIntent();
 
-        initComponents();
-        initButtonListener();
-        getSharingData();
+        if (UserHelper.userStillLoggedIn(userCreds.getExpireDate())) {
+            initComponents();
+            initButtonListener();
+            getSharingData();
+        } else {
+            Utilities.buildToast(this, "User is not logged in!", Toast.LENGTH_LONG);
+            startActivity(new Intent(AddNoteActivity.this, MainActivity.class));
+            finish();
+        }
     }
 
     private void initComponents() {

@@ -63,9 +63,15 @@ public class AddUrlActivity extends AppCompatActivity implements View.OnClickLis
         userCreds = SharedPreferencesHelper.getUserCredsFromPreferences(preferences);
         intent = getIntent();
 
-        initComponents();
-        initButtonListener();
-        getSharingData();
+        if (UserHelper.userStillLoggedIn(userCreds.getExpireDate())) {
+            initComponents();
+            initButtonListener();
+            getSharingData();
+        } else {
+            Utilities.buildToast(this, "User is not logged in!", Toast.LENGTH_LONG);
+            startActivity(new Intent(AddUrlActivity.this, MainActivity.class));
+            finish();
+        }
     }
 
     private void initComponents() {
