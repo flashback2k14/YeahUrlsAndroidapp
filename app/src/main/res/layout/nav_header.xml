@@ -5,17 +5,19 @@
     android:layout_width="match_parent"
     android:layout_height="222dp"
     android:background="?attr/colorPrimaryDark"
-    android:padding="16dp"
+    android:paddingTop="6dp"
+    android:paddingLeft="16dp"
     android:theme="@style/ThemeOverlay.AppCompat.Dark"
     android:orientation="vertical"
-    android:gravity="bottom">
+    android:gravity="top">
 
     <com.mikhaellopez.circularimageview.CircularImageView
         android:id="@+id/cvProfileImage"
-        android:layout_width="125dp"
-        android:layout_height="125dp"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
+        android:layout_marginTop="0dp"
         android:layout_marginLeft="0dp"
-        android:layout_marginBottom="15dp"
+        android:layout_marginBottom="0dp"
         android:src="@mipmap/ic_launcher"
         app:border="true"
         app:border_color="@color/window_background"
@@ -29,7 +31,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginLeft="10dp"
-        android:layout_marginTop="5dp"
+        android:layout_marginTop="3dp"
         android:text="@string/app_name"
         android:textSize="20sp"/>
 
@@ -38,7 +40,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginLeft="10dp"
-        android:layout_marginTop="5dp"
+        android:layout_marginTop="3dp"
         android:textSize="15sp"/>
 
 </LinearLayout>
