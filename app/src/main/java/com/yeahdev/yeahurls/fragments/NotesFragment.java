@@ -146,7 +146,6 @@ public class NotesFragment extends Fragment implements ICommunicationAdapter {
 
                 @Override
                 public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-
                 }
 
                 @Override

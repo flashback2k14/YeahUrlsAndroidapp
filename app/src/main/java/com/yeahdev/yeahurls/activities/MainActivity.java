@@ -125,8 +125,11 @@ public class MainActivity extends AppCompatActivity implements ICommunication {
                 return false;
             }
         });
-        profileImage = (CircularImageView) findViewById(R.id.cvProfileImage);
-        headerEmail = (TextView) findViewById(R.id.tvHeaderEmail);
+
+        if (navigationView.getHeaderView(0) != null) {
+            profileImage = (CircularImageView) navigationView.getHeaderView(0).findViewById(R.id.cvProfileImage);
+            headerEmail = (TextView) navigationView.getHeaderView(0).findViewById(R.id.tvHeaderEmail);
+        }
     }
 
     private void setupToolbar() {

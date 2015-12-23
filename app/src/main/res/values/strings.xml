@@ -6,7 +6,7 @@
 
     <string name="nav_login">Login</string>
     <string name="nav_home">Home</string>
-    <string name="nav_overview">Overview</string>
+    <string name="nav_overview">URLs</string>
     <string name="nav_note">Notes</string>
     <string name="nav_logout">Logout</string>
 

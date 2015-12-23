@@ -121,7 +121,6 @@ public class OverviewFragment extends Fragment implements ICommunicationAdapter 
 
                 @Override
                 public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-
                 }
 
                 @Override
