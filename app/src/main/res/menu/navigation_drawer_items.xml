@@ -2,33 +2,35 @@
 <menu
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context=".MainActivity">
+    tools:context=".activities.MainActivity">
 
-    <group android:checkableBehavior="all">
+    <group android:id="@+id/nav_top" android:checkableBehavior="single">
         <item
             android:id="@+id/navigation_item_login"
             android:icon="@drawable/ic_person_outline_black_48dp"
             android:title="@string/nav_login"/>
-
         <item
             android:id="@+id/navigation_item_home"
             android:icon="@mipmap/ic_home_black_48dp"
             android:title="@string/nav_home"/>
-
         <item
             android:id="@+id/navigation_item_overview"
             android:icon="@drawable/ic_list_black_48dp"
             android:title="@string/nav_overview"/>
-
         <item
             android:id="@+id/navigation_item_note"
             android:icon="@drawable/ic_insert_drive_file_black_48dp"
             android:title="@string/nav_note"/>
-
         <item
             android:id="@+id/navigation_item_logout"
             android:icon="@mipmap/ic_eject_black"
             android:title="@string/nav_logout"/>
+    </group>
 
+    <group android:id="@+id/nav_bottom" android:checkableBehavior="single">
+        <item
+            android:id="@+id/navigation_item_version"
+            android:icon="@drawable/ic_info_outline_black_24dp"
+            android:title="@string/app_version" />
     </group>
 </menu>

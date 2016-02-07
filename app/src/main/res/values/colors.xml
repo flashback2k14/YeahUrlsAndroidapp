@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- old color scheme -->
+    <!--
     <color name="window_background">#081E3F</color>
     <color name="window_foreground">#FFFFFF</color>
     <color name="cardview_background">#EEEEEE</color>
@@ -14,4 +16,22 @@
 
     <color name="icons">#0E5F76</color>
     <color name="divider">#D8D7C3</color>
+    -->
+
+    <!-- new color scheme -->
+    <color name="window_background">#23272D</color>
+    <color name="window_foreground">#FFFFFF</color>
+    <color name="cardview_background">#FFFFFF</color>
+
+    <color name="primary_dark">#23272D</color>
+    <color name="primary">#23272D</color>
+    <color name="primary_light">#23272D</color>
+    <color name="accent">#FF2B4B</color>
+
+    <color name="primary_text">#FFFFFF</color>
+    <color name="secondary_text">#576372</color>
+
+    <color name="icons">#576372</color>
+    <color name="divider">#383f49</color>
+    <color name="shadow">#000000</color>
 </resources>

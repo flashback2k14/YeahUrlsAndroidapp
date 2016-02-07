@@ -23,27 +23,27 @@
         <!-- theme UI controls like checkboxes and text fields e.g. FloatActionButton -->
         <item name="colorAccent">@color/accent</item>
         <!-- Title Text Color -->
-        <item name="android:textColorPrimary">@color/window_foreground</item>
+        <item name="android:textColorPrimary">@color/primary_text</item>
         <item name="actionOverflowMenuStyle">@style/OptionsMenu</item>
         <item name="android:windowBackground">@color/window_background</item>
         <!-- Drawer Style -->
         <item name="drawerArrowStyle">@style/AppTheme.MyDrawerArrowStyle</item>
         <!-- Definition Text Hint -->
-        <item name="android:textColorHint">@color/window_foreground</item>
+        <item name="android:textColorHint">@color/primary_text</item>
     </style>
 
     <!-- Definition Option Menu Style -->
     <style name="OptionsMenu" parent="Widget.AppCompat.PopupMenu.Overflow">
         <!-- color of the menu overflow icon (three vertical dots) -->
-        <item name="android:textColorSecondary">@color/window_foreground</item>
+        <item name="android:textColor">@color/primary_text</item>
+        <item name="android:textColorSecondary">@color/primary_text</item>
         <item name="android:popupBackground">@color/window_background</item>
-        <item name="android:textColor">@color/window_foreground</item>
     </style>
 
     <!-- Definition Drawer Style -->
     <style name="AppTheme.MyDrawerArrowStyle" parent="Widget.AppCompat.DrawerArrowToggle">
         <item name="spinBars">true</item>
-        <item name="color">@color/window_foreground</item>
+        <item name="color">@color/primary_text</item>
     </style>
 
     <!-- Definition Edittext Style -->
@@ -51,7 +51,7 @@
         <item name="colorControlNormal">@color/window_foreground</item>
         <item name="colorControlActivated">@color/accent</item>
         <item name="colorControlHighlight">@color/accent</item>
-        <item name="android:textColor">@color/window_foreground</item>
+        <item name="android:textColor">@color/primary_text</item>
     </style>
 
     <!-- Definition Dialog Style -->

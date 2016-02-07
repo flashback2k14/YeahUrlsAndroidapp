@@ -137,8 +137,8 @@ public class MainActivity extends AppCompatActivity implements ICommunication {
 
         if (toolbar != null) {
             setSupportActionBar(toolbar);
-            ViewCompat.setElevation(toolbar, 8);
-            ViewCompat.setTranslationZ(toolbar, 8);
+            ViewCompat.setElevation(toolbar, 0);
+            ViewCompat.setTranslationZ(toolbar, 0);
             ActionBar supportActionBar = getSupportActionBar();
             if (supportActionBar != null) {
                 supportActionBar.setHomeButtonEnabled(true);
@@ -301,7 +301,7 @@ public class MainActivity extends AppCompatActivity implements ICommunication {
         new ImageLoader(profileImage).execute(this.fireBaseUser.getProfileImage());
         headerEmail.setText(fireBaseUser.getEmailAddress());
 
-        showOverviewFragment();
+        showHomeFragment();
     }
 
     /**
