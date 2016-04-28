@@ -193,6 +193,7 @@ public class OverviewRvAdapter extends RecyclerView.Adapter<OverviewRvAdapter.Ov
             }
         }
     }
+
     /**
      * BEGIN METHODS FOR FILTER ADAPTER ELEMENTS
      */

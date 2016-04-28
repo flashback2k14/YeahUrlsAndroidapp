@@ -2,6 +2,7 @@ package com.yeahdev.yeahurls.fragments;
 
 import android.app.ProgressDialog;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
@@ -38,6 +39,8 @@ public class OverviewFragment extends Fragment implements ICommunicationAdapter 
     private RecyclerView rvOverview;
 
     private OverviewRvAdapter overviewRvAdapter;
+    private FloatingActionButton fabScrollOverviewDown;
+    private FloatingActionButton fabScrollOverviewUp;
     private ArrayList<UrlItem> itemArrayList;
 
     public OverviewFragment() { itemArrayList = new ArrayList<>(); }
@@ -51,6 +54,9 @@ public class OverviewFragment extends Fragment implements ICommunicationAdapter 
 
         progressDialog = ProgressDialog.show(getActivity(), "Loading", "Get Url Collection from Firebase...", false, true);
         itemArrayList.clear();
+
+        fabScrollOverviewDown = (FloatingActionButton) v.findViewById(R.id.fabScrollUrlDown);
+        fabScrollOverviewUp = (FloatingActionButton) v.findViewById(R.id.fabScrollUrlUp);
 
         String userId = this.getArguments().getString("userId", "");
         long expireDate = this.getArguments().getLong("expireDate", 0);
@@ -68,10 +74,41 @@ public class OverviewFragment extends Fragment implements ICommunicationAdapter 
             if (UserHelper.userStillLoggedIn(expireDate)) {
                 loadUrlDataFromFirebase(userCreds.getUserId());
             }
+
+            rvOverview.addOnScrollListener(new RecyclerView.OnScrollListener() {
+                @Override
+                public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                    super.onScrollStateChanged(recyclerView, newState);
+
+                    if (newState == RecyclerView.SCROLL_STATE_DRAGGING) {
+                        fabScrollOverviewDown.hide();
+                        fabScrollOverviewUp.hide();
+                    } else {
+                        fabScrollOverviewDown.show();
+                        fabScrollOverviewUp.show();
+                    }
+                }
+            });
+
         } else {
             Utilities.buildSnackbar(getActivity(), "No valid User available!");
             progressDialog.dismiss();
         }
+
+        fabScrollOverviewDown.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                rvOverview.scrollToPosition(overviewRvAdapter.getItemCount() - 1);
+            }
+        });
+
+        fabScrollOverviewUp.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                rvOverview.scrollToPosition(0);
+            }
+        });
+
         return v;
     }
 
