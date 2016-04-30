@@ -16,6 +16,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.LayoutInflater;
 import android.support.v4.app.Fragment;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.firebase.client.ChildEventListener;
@@ -32,17 +35,26 @@ import com.yeahdev.yeahurls.util.UserHelper;
 import com.yeahdev.yeahurls.util.Utilities;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 
 public class OverviewFragment extends Fragment implements ICommunicationAdapter {
     private ProgressDialog progressDialog;
     private RecyclerView rvOverview;
-
-    private OverviewRvAdapter overviewRvAdapter;
+    private Spinner spKeywords;
+    private FloatingActionButton fabClearSpinner;
     private FloatingActionButton fabScrollOverviewUpDown;
-    private ArrayList<UrlItem> itemArrayList;
 
-    public OverviewFragment() { itemArrayList = new ArrayList<>(); }
+    private ArrayAdapter<String> aaKeywords;
+    private OverviewRvAdapter overviewRvAdapter;
+
+    private ArrayList<UrlItem> itemArrayList;
+    private ArrayList<String> itemArrayListKeywords;
+
+    public OverviewFragment() {
+        itemArrayList = new ArrayList<>();
+        itemArrayListKeywords = new ArrayList<>();
+    }
 
     public static OverviewFragment newInstance() { return new OverviewFragment(); }
 
@@ -53,7 +65,9 @@ public class OverviewFragment extends Fragment implements ICommunicationAdapter 
 
         progressDialog = ProgressDialog.show(getActivity(), "Loading", "Get Url Collection from Firebase...", false, true);
         itemArrayList.clear();
+        itemArrayListKeywords.clear();
 
+        fabClearSpinner = (FloatingActionButton) v.findViewById(R.id.fabClearSpinner);
         fabScrollOverviewUpDown = (FloatingActionButton) v.findViewById(R.id.fabScrollUrlUpDown);
 
         String userId = this.getArguments().getString("userId", "");
@@ -62,35 +76,86 @@ public class OverviewFragment extends Fragment implements ICommunicationAdapter 
         if (!"".equals(userId) || expireDate != 0) {
             UserCreds userCreds = UserHelper.createUserCredsObject(userId, expireDate);
 
-            rvOverview = (RecyclerView) v.findViewById(R.id.rvOverview);
-            rvOverview.setLayoutManager(new LinearLayoutManager(getActivity()));
-            rvOverview.setItemAnimator(new DefaultItemAnimator());
-
-            overviewRvAdapter = new OverviewRvAdapter(getActivity(), userCreds, this);
-            rvOverview.setAdapter(overviewRvAdapter);
+            setupSpinner(v);
+            setupRecyclerView(v, userCreds);
 
             if (UserHelper.userStillLoggedIn(expireDate)) {
+                itemArrayListKeywords.add("");
                 loadUrlDataFromFirebase(userCreds.getUserId());
             }
 
-            rvOverview.addOnScrollListener(new RecyclerView.OnScrollListener() {
-                @Override
-                public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
-
-                    if (newState == RecyclerView.SCROLL_STATE_DRAGGING) {
-                        fabScrollOverviewUpDown.hide();
-                    } else {
-                        fabScrollOverviewUpDown.show();
-                    }
-
-                    super.onScrollStateChanged(recyclerView, newState);
-                }
-            });
+            setupListener();
 
         } else {
             Utilities.buildSnackbar(getActivity(), "No valid User available!");
             progressDialog.dismiss();
         }
+
+        return v;
+    }
+
+    /**
+     * Setup Spinner
+     * @param v View
+     */
+    private void setupSpinner(View v) {
+        spKeywords = (Spinner) v.findViewById(R.id.spKeywords);
+        spKeywords.setPrompt("Select Keyword");
+        aaKeywords = new ArrayAdapter<>(getActivity(), android.R.layout.simple_spinner_item, itemArrayListKeywords);
+        aaKeywords.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spKeywords.setAdapter(aaKeywords);
+    }
+
+    /**
+     * Setup RecyclerView
+     * @param v View
+     * @param userCreds UserCreds
+     */
+    private void setupRecyclerView(View v, UserCreds userCreds) {
+        rvOverview = (RecyclerView) v.findViewById(R.id.rvOverview);
+        rvOverview.setLayoutManager(new LinearLayoutManager(getActivity()));
+        rvOverview.setItemAnimator(new DefaultItemAnimator());
+
+        overviewRvAdapter = new OverviewRvAdapter(getActivity(), userCreds, this);
+        rvOverview.setAdapter(overviewRvAdapter);
+    }
+
+    /**
+     * Setup Listener
+     */
+    private void setupListener() {
+        spKeywords.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                if (position > 0) {
+                    performFilterAction(itemArrayListKeywords.get(position));
+                } else {
+                    performFilterAction("");
+                }
+            }
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) { }
+        });
+
+        fabClearSpinner.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                performFilterAction("");
+                spKeywords.setSelection(0);
+            }
+        });
+
+        rvOverview.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                if (newState == RecyclerView.SCROLL_STATE_DRAGGING) {
+                    fabScrollOverviewUpDown.hide();
+                } else {
+                    fabScrollOverviewUpDown.show();
+                }
+                super.onScrollStateChanged(recyclerView, newState);
+            }
+        });
 
         fabScrollOverviewUpDown.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -104,8 +169,6 @@ public class OverviewFragment extends Fragment implements ICommunicationAdapter 
                 }
             }
         });
-
-        return v;
     }
 
     /**
@@ -124,6 +187,11 @@ public class OverviewFragment extends Fragment implements ICommunicationAdapter 
                             UrlItem urlItem = createUrlItem(objId, child);
                             if (urlItem != null) {
                                 itemArrayList.add(urlItem);
+                                if (!itemArrayListKeywords.contains(urlItem.getKeywords())) {
+                                    itemArrayListKeywords.add(urlItem.getKeywords());
+                                    Collections.sort(itemArrayListKeywords);
+                                    aaKeywords.notifyDataSetChanged();
+                                }
                                 overviewRvAdapter.addItem(itemArrayList.size() - 1, urlItem);
                             }
                         } catch (Exception e) {
@@ -197,34 +265,6 @@ public class OverviewFragment extends Fragment implements ICommunicationAdapter 
     }
 
     /**
-     * Method to Filter Adapter Elements that matching the Query
-     * @param urlCollection old Elements List
-     * @param query Search Query
-     * @return new Elements List
-     */
-    private ArrayList<UrlItem> filter(ArrayList<UrlItem> urlCollection, String query) {
-        query = query.toLowerCase();
-
-        if (TextUtils.isEmpty(query)) {
-            return urlCollection;
-        } else {
-            final ArrayList<UrlItem> filteredModelList = new ArrayList<>();
-            for (UrlItem item : urlCollection) {
-                final String text = item.getValue().toLowerCase().trim();
-                if (text.contains(query)) {
-                    filteredModelList.add(item);
-                    continue;
-                }
-                final String textKey = item.getKeywords().toLowerCase().trim();
-                if (textKey.contains(query)) {
-                    filteredModelList.add(item);
-                }
-            }
-            return filteredModelList;
-        }
-    }
-
-    /**
      * Method to Add Element to Temp Element List
      * @param position Position in ArrayList
      * @param item Item Object
@@ -261,11 +301,47 @@ public class OverviewFragment extends Fragment implements ICommunicationAdapter 
 
             @Override
             public boolean onQueryTextChange(String query) {
-                final ArrayList<UrlItem> filteredModelList = filter(itemArrayList, query);
-                overviewRvAdapter.animateTo(filteredModelList);
-                rvOverview.scrollToPosition(0);
+                performFilterAction(query);
                 return true;
             }
         });
+    }
+
+    /**
+     * Perform Filter Action
+     * @param query Search Query
+     */
+    private void performFilterAction(String query) {
+        final ArrayList<UrlItem> filteredModelList = filter(itemArrayList, query);
+        overviewRvAdapter.animateTo(filteredModelList);
+        rvOverview.scrollToPosition(0);
+    }
+
+    /**
+     * Method to Filter Adapter Elements that matching the Query
+     * @param urlCollection old Elements List
+     * @param query Search Query
+     * @return new Elements List
+     */
+    private ArrayList<UrlItem> filter(ArrayList<UrlItem> urlCollection, String query) {
+        query = query.toLowerCase();
+
+        if (TextUtils.isEmpty(query)) {
+            return urlCollection;
+        } else {
+            final ArrayList<UrlItem> filteredModelList = new ArrayList<>();
+            for (UrlItem item : urlCollection) {
+                final String text = item.getValue().toLowerCase().trim();
+                if (text.contains(query)) {
+                    filteredModelList.add(item);
+                    continue;
+                }
+                final String textKey = item.getKeywords().toLowerCase().trim();
+                if (textKey.contains(query)) {
+                    filteredModelList.add(item);
+                }
+            }
+            return filteredModelList;
+        }
     }
 }

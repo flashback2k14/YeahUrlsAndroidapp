@@ -196,7 +196,9 @@ public class OverviewRvAdapter extends RecyclerView.Adapter<OverviewRvAdapter.Ov
         }
     }
 
-
+    /**
+     * BEGIN METHODS FOR SCROLL HELPER
+     */
     public void setScrolledToBottom(boolean value) {
         this.isScrolledToBottom = value;
     }
@@ -204,6 +206,9 @@ public class OverviewRvAdapter extends RecyclerView.Adapter<OverviewRvAdapter.Ov
     public boolean isScrolledToBottom() {
         return this.isScrolledToBottom ;
     }
+    /**
+     * END METHODS FOR SCROLL HELPER
+     */
 
     /**
      * BEGIN METHODS FOR FILTER ADAPTER ELEMENTS
