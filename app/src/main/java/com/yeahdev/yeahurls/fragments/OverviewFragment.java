@@ -39,8 +39,7 @@ public class OverviewFragment extends Fragment implements ICommunicationAdapter 
     private RecyclerView rvOverview;
 
     private OverviewRvAdapter overviewRvAdapter;
-    private FloatingActionButton fabScrollOverviewDown;
-    private FloatingActionButton fabScrollOverviewUp;
+    private FloatingActionButton fabScrollOverviewUpDown;
     private ArrayList<UrlItem> itemArrayList;
 
     public OverviewFragment() { itemArrayList = new ArrayList<>(); }
@@ -55,8 +54,7 @@ public class OverviewFragment extends Fragment implements ICommunicationAdapter 
         progressDialog = ProgressDialog.show(getActivity(), "Loading", "Get Url Collection from Firebase...", false, true);
         itemArrayList.clear();
 
-        fabScrollOverviewDown = (FloatingActionButton) v.findViewById(R.id.fabScrollUrlDown);
-        fabScrollOverviewUp = (FloatingActionButton) v.findViewById(R.id.fabScrollUrlUp);
+        fabScrollOverviewUpDown = (FloatingActionButton) v.findViewById(R.id.fabScrollUrlUpDown);
 
         String userId = this.getArguments().getString("userId", "");
         long expireDate = this.getArguments().getLong("expireDate", 0);
@@ -78,15 +76,14 @@ public class OverviewFragment extends Fragment implements ICommunicationAdapter 
             rvOverview.addOnScrollListener(new RecyclerView.OnScrollListener() {
                 @Override
                 public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
-                    super.onScrollStateChanged(recyclerView, newState);
 
                     if (newState == RecyclerView.SCROLL_STATE_DRAGGING) {
-                        fabScrollOverviewDown.hide();
-                        fabScrollOverviewUp.hide();
+                        fabScrollOverviewUpDown.hide();
                     } else {
-                        fabScrollOverviewDown.show();
-                        fabScrollOverviewUp.show();
+                        fabScrollOverviewUpDown.show();
                     }
+
+                    super.onScrollStateChanged(recyclerView, newState);
                 }
             });
 
@@ -95,17 +92,16 @@ public class OverviewFragment extends Fragment implements ICommunicationAdapter 
             progressDialog.dismiss();
         }
 
-        fabScrollOverviewDown.setOnClickListener(new View.OnClickListener() {
+        fabScrollOverviewUpDown.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                rvOverview.scrollToPosition(overviewRvAdapter.getItemCount() - 1);
-            }
-        });
-
-        fabScrollOverviewUp.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                rvOverview.scrollToPosition(0);
+                if (overviewRvAdapter.isScrolledToBottom()) {
+                    rvOverview.scrollToPosition(0);
+                    overviewRvAdapter.setScrolledToBottom(false);
+                } else {
+                    rvOverview.scrollToPosition(overviewRvAdapter.getItemCount() - 1);
+                    overviewRvAdapter.setScrolledToBottom(true);
+                }
             }
         });
 

@@ -53,12 +53,14 @@ public class OverviewRvAdapter extends RecyclerView.Adapter<OverviewRvAdapter.Ov
     private UserCreds userCreds;
     private ArrayList<UrlItem> urlItemCollection;
     private ICommunicationAdapter iCommAdapter;
+    private boolean isScrolledToBottom;
 
     public OverviewRvAdapter(Activity activity, UserCreds userCreds, ICommunicationAdapter iCommAdapter) {
         this.activity = activity;
         this.userCreds = userCreds;
         this.urlItemCollection = new ArrayList<>();
         this.iCommAdapter = iCommAdapter;
+        this.isScrolledToBottom = false;
     }
 
     @Override
@@ -192,6 +194,15 @@ public class OverviewRvAdapter extends RecyclerView.Adapter<OverviewRvAdapter.Ov
                 }
             }
         }
+    }
+
+
+    public void setScrolledToBottom(boolean value) {
+        this.isScrolledToBottom = value;
+    }
+
+    public boolean isScrolledToBottom() {
+        return this.isScrolledToBottom ;
     }
 
     /**
