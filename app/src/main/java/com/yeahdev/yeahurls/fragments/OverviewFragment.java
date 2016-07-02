@@ -18,6 +18,7 @@ import android.view.LayoutInflater;
 import android.support.v4.app.Fragment;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.Toast;
 
@@ -41,6 +42,7 @@ import java.util.Collections;
 public class OverviewFragment extends Fragment implements ICommunicationAdapter {
     private ProgressDialog progressDialog;
     private RecyclerView rvOverview;
+    private LinearLayout llOverviewKeywords;
     private Spinner spKeywords;
     private FloatingActionButton fabClearSpinner;
     private FloatingActionButton fabScrollOverviewUpDown;
@@ -67,6 +69,7 @@ public class OverviewFragment extends Fragment implements ICommunicationAdapter 
         itemArrayList.clear();
         itemArrayListKeywords.clear();
 
+        llOverviewKeywords = (LinearLayout) v.findViewById(R.id.llOverviewKeywords);
         fabClearSpinner = (FloatingActionButton) v.findViewById(R.id.fabClearSpinner);
         fabScrollOverviewUpDown = (FloatingActionButton) v.findViewById(R.id.fabScrollUrlUpDown);
 
@@ -289,8 +292,11 @@ public class OverviewFragment extends Fragment implements ICommunicationAdapter 
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        super.onCreateOptionsMenu(menu, inflater);
-
+        // add items from fragment menu
+        inflater.inflate(R.menu.menu_fragments, menu);
+        // hide settings
+        menu.findItem(R.id.action_settings).setVisible(false);
+        // setup search
         final MenuItem item = menu.findItem(R.id.action_search);
         final SearchView searchView = (SearchView) MenuItemCompat.getActionView(item);
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
@@ -305,6 +311,22 @@ public class OverviewFragment extends Fragment implements ICommunicationAdapter 
                 return true;
             }
         });
+        // call parent method
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // handle visibility of keywords spinner
+        if (item.getItemId() == R.id.action_show_keywords) {
+            if (llOverviewKeywords.getVisibility() == View.GONE) {
+                llOverviewKeywords.setVisibility(View.VISIBLE);
+            } else {
+                llOverviewKeywords.setVisibility(View.GONE);
+            }
+        }
+        // call parent method
+        return super.onOptionsItemSelected(item);
     }
 
     /**

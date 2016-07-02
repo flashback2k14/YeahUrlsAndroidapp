@@ -240,8 +240,13 @@ public class NotesFragment extends Fragment implements ICommunicationAdapter {
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        super.onCreateOptionsMenu(menu, inflater);
-
+        // add items from fragment menu
+        inflater.inflate(R.menu.menu_fragments, menu);
+        // hide settings
+        menu.findItem(R.id.action_settings).setVisible(false);
+        // hide keywords spinner
+        menu.findItem(R.id.action_show_keywords).setVisible(false);
+        // setup search
         final MenuItem menuItem = menu.findItem(R.id.action_search);
         final SearchView searchView = (SearchView) MenuItemCompat.getActionView(menuItem);
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
@@ -258,5 +263,7 @@ public class NotesFragment extends Fragment implements ICommunicationAdapter {
                 return true;
             }
         });
+        // call parent method
+        super.onCreateOptionsMenu(menu, inflater);
     }
 }

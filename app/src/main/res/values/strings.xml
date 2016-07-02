@@ -1,8 +1,9 @@
 <resources>
     <string name="app_name">Yeah! URLs</string>
-    <string name="app_version">VERSION - 1.4.4</string>
+    <string name="app_version">VERSION - 1.5.0</string>
 
     <string name="action_settings">Settings</string>
+    <string name="action_show_keywords">Show Keywords</string>
     <string name="drawer_open">Open Drawer</string>
     <string name="drawer_close">Close Drawer</string>
 
@@ -35,4 +36,7 @@
 
     <string name="title_activity_add_note">Yeah! URLs - Add Note</string>
     <string name="title_activity_add_url">Yeah! URLs - Add URL</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>
